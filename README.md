@@ -1,2 +1,2 @@
-# Matrix_calculater_multiplication
+#CPP practice
 my practice for cpp and pointer,memary managment
