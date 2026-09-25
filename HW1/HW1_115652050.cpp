@@ -5,6 +5,8 @@
 //#include <utility> //For pair<T1,T2>,already included in <iostream>
 using namespace std;
 
+//Q1:Machine Epsilon
+
 float machine_eps_flt() {
   float eps = 1.0f;
   while (1.0f + (eps / 2.0f) > 1.0f) {
@@ -53,6 +55,8 @@ void MachineEpsilon() {
           "manually."
        << endl;
 }
+
+//Q2:Find root in different methods
 
 // Bisection Method residual:1e-8
 // Secant Method residual:1e-11
