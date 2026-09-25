@@ -2,7 +2,7 @@
 #include <cstdio> //printf("%.n f");
 #include <iostream>
 #include <limits>  //Mechine Epsilon
-#include <utility> //For pair<T1,T2>
+//#include <utility> //For pair<T1,T2>,already included in <iostream>
 using namespace std;
 
 float machine_eps_flt() {
@@ -55,11 +55,19 @@ void MachineEpsilon() {
 }
 
 // Bisection Method residual:1e-8
+// Secant Method residual:1e-11
 // Newton's Method residual:1e-11
 
 double f(double x) { return pow(x, 2) - 4 * sin(x); }
 
-double *getBisecInput() {
+double *getABTInput() {
+  /** 
+  *  @brief user input for left boundary, right boundary, and target value.
+  *  @param A:Left boundary
+  *  @param B:Right boundary
+  *  @param T:Target value
+  *  @return double pointer to an array of size 3, containing A, B, and T.
+  */
   double *usrin = new double[3];
   cout
       << "Give the boundary and the target.\n"
@@ -108,6 +116,42 @@ pair<double, int> bisectionMethod(double a, double b, double target) {
   return {ans, i};
 }
 
+pair<double,int> secantMethod(double a,double b,double target){
+  double fa_diff = f(a) - target;
+  double fb_diff = f(b) - target;
+
+  if(fa_diff==0){
+    return {a,0};
+  }
+  else if (fb_diff==0){
+    return {b,0};
+  }
+
+  const double rsdl=1e-11;
+  const int max_iter=100;
+  int i=0;
+  double ans=b;
+  double fans_diff=fb_diff;
+  double m=0;
+  while(abs(fans_diff)>rsdl && i<max_iter){
+    if(fa_diff==fb_diff){
+      cout<<"ERROR: f(a) and f(b) should not be equal."<<endl;
+      return {NAN,0};
+    }
+    //main calculation
+    m=(fb_diff-fa_diff)/(b-a);
+    ans=b-(fb_diff/m);
+    
+    a=b;
+    fa_diff=fb_diff;
+    b=ans;
+    fb_diff=f(b)-target;
+    fans_diff=fb_diff;
+    i++;
+  }
+  return {ans,i};
+}
+
 void FindRoot() {
   int method = 0;
   cout << "----Find root.----\nChoose a method.\n1:Bisection method.\n2:Secant "
@@ -117,7 +161,7 @@ void FindRoot() {
   switch (method) {
   case 1: {
     cout << "Use bisection method." << endl;
-    double *usrin = getBisecInput();
+    double *usrin = getABTInput();
     pair<double, int> ans = bisectionMethod(usrin[0], usrin[1], usrin[2]);
     if (isnan(ans.first)) {
       delete[] usrin;
@@ -129,6 +173,14 @@ void FindRoot() {
   }
   case 2: {
     cout << "Use secant method." << endl;
+    double *usrin = getABTInput();
+    pair<double,int> ans=secantMethod(usrin[0],usrin[1],usrin[2]);
+    if(isnan(ans.first)){
+      delete[] usrin;
+      break;
+    }
+    printf("Find answer: %.11f in %i steps.\n", ans.first, ans.second);
+    delete[] usrin;
     break;
   }
   case 3: {
