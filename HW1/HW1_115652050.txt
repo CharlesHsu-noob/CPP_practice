@@ -1,36 +1,76 @@
 ﻿
 Report of PROGRAMMING
 
-章節：
+章節：HW1
 
-題號：
+題號：1
 
 學號：115652050
 
 姓名：徐偉恆
 
 一、分析：（說明該題是要做什麼 PROGRAMMING）
+1.用 while 迴圈手動計算並找出單精度（float）與雙精度（double）的機器零。
 
+2.調用<limits>函式庫裡面的機器零，與手動計算的結果進行輸出比對。
+
+3.額外擴充測試：驗證浮點數運算在存在機器極限值的狀況下，是否還滿足數學上的「加法結合律」。
 
 二、設計：（說明如何達成此 PROGRAMMING 之任務。建議製作流程圖，便於清楚表達）
+1.計算機器零 (Machine Epsilon)：
+    撰寫 machine_eps_flt() 與 machine_eps_dub() 兩個函式。
+    宣告變數 eps = 1.0，並利用 while (1.0 + (eps / 2.0) > 1.0) 作為判斷條件。
+    若條件成立，則將 eps 減半（eps /= 2.0）。
+    當迴圈結束時，回傳的eps即為該資料型態能分辨大於1的最小差值。
+2.函式庫比對：
+    引入<limits>函式庫，提取 numeric_limits<float>::epsilon()與numeric_limits<double>::epsilon()，並與上述迴圈得出的結果一併輸出，以確認計算正確性。
 
-
+3.結合律失效測試(extendQ1_1)：
+    設定eps為雙精度機器零的一半。
+    計算變數 a = (1.0 + eps) + eps 以及變數 b = 1.0 + (eps + eps)。
+    利用 printf 格式化輸出至小數點後20位，觀察因為運算順序不同而造成的捨入誤差。
 三、實作：（說明在C++程式實現上，是否遇到什麼困難，是如何解決。所設計的程式，是否有什麼地方比較特別，說明之）
+遇到的困難與解決方法：在實作extendQ1_1()驗證結合律時，若單純使用cout輸出變數a與b，會因為預設的輸出精度太低（預設為 6 位有效數字），導致畫面顯示兩者皆為 1，無法看出差異。
+解決方式是引入<cstdio>函式庫，並使用printf("%.20f\n", a)強制印出至小數點下20位，藉此清楚看見浮點數底層的數值落差。
 
+到的困難與解決方法2（跨平台執行結果不一致與過度精準問題）：這是本程式遇到最大的困難。
+一開始程式在 Linux 系統上執行時，算出的結果與<limits>提供的標準值吻合；但在Windows環境（32 位元編譯器）下執行時，卻出現「過度精準」的現象，算出的 Epsilon 遠小於標準值。
+
+原因分析：經查證，這是因為早期x86架構的x87 FPU（浮點運算單元）使用了80-bit的高精度暫存器。
+編譯器在執行1.0f + (eps / 2.0f)時，直接在暫存器內進行高精度比較，並未將中間結果截斷回 32-bit (float) 或 64-bit (double) 的長度，導致迴圈多跑了許多次。
+
+解決方式：為了打破編譯器與硬體的優化機制，我在迴圈內加入了一個volatile關鍵字的暫存變數（例如 volatile float temp = 1.0f + (eps / 2.0f);）。
+這會強迫編譯器在每次計算後，都必須將結果寫回記憶體，強制發生位元截斷，然後再讀出來比較。加上此機制後，Windows 與 Linux 雙平台的執行結果便完全一致了。
 
 四、測試：（展示測試過程，說明所撰寫的C++程式有達成 PROGRAMMING 之任務）
-
+----Question 1:Machine Epsilon.----
+Machine Epsilon calculated manually:
+Float:1.19209e-007      Double:2.22045e-016
+Nachine Epsilon from limits.h:
+Float:1.19209e-007      Double:2.22045e-016
+The machine epsilon defined in <limit> matches the value calculated manually.
+----Extend Question 1-1.----
+(1.0+eps)+eps=1.00000000000000000000
+1.0+(eps+eps)=1.00000000000000022204
+Is a equals to b? No. b>a=1.
+Does this contradict the associative property of addition?
+Yes, it does. Mathematically, (a+b)+c = a+(b+c), while in floating-point calculations, due to Machine Epsilon, the order of addition will affect the result. Hence, floating-point addition does not satisfy the associative property.
 
 五、自評：
 
-[   ] 1. 題目難易度： (a)艱難;  (b)難;  (c)還好;  (d)容易.
+[d] 1. 題目難易度： (a)艱難;  (b)難;  (c)還好;  (d)容易.
 
-[   ] 2. 解題認真度： (a)用心;  (b)良;  (c)尚可;  (d)普通.
+[a] 2. 解題認真度： (a)用心;  (b)良;  (c)尚可;  (d)普通.
 
 
 六、總結：（請紀錄完成此 PROGRAMMING 的心得，特別是在程式設計過程中 有與其他人討論，或是 參考別人的程式，或是 給予同學參考，請清楚記錄下來）
 
+透過本次作業，我不僅學會了如何使用C++的while迴圈找出系統的Machine Epsilon，最大的收穫在於深刻體會了「數學理論」與「電腦實際運算」之間的落差，
+以及「底層硬體與編譯器」對程式行為的巨大影響。
 
+在實作過程中，我意外發現了同一份浮點數運算程式碼在Windows與Linux上會跑出不同結果。
+為了解決這個跨平台不一致的問題，我研究了x87 FPU 80-bit暫存器與編譯器優化機制的關聯，並學會使用 volatile 關鍵字來強制控制記憶體的讀寫與數值截斷。
+這次除錯經驗讓我明白，在進行高精度科學計算時，不能只把浮點數當作單純的數學變數，還必須考慮硬體架構與編譯器底層的運作邏輯。
 
 註一：作 PROGRAMMING 過程中，可以與別人討論，或是參考別人的程式；然而，務必清楚記錄與何人討論或是參考資料來源。
 
