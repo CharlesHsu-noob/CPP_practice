@@ -5,11 +5,15 @@ using namespace std;
 
 //Q2:Find root in different methods
 
-// Bisection Method residual:1e-8
+// Bisection Method residual:1e-11
 // Secant Method residual:1e-11
 // Newton's Method residual:1e-11
+//printf("&e",residual) to print the residual in scientific notation.
+const double RESIDUAL=1e-11;
 
 double f(double x) { return pow(x, 2) - 4 * sin(x); }
+
+double df(double x) {return 2*x-4*cos(x);}
 
 double *getABTInput() {
   /** 
@@ -43,7 +47,7 @@ pair<double, int> bisectionMethod(double a, double b, double target) {
     return {b, 0};
   }
 
-  const double rsdl = 1e-8; // rsdl->residual
+  const double rsdl = RESIDUAL; // rsdl->residual
   const int max_iter = 100; // iter->iterations迭代
   double ans = (a + b) / 2.0;
   double fans_diff = f(ans) - target;
@@ -78,7 +82,7 @@ pair<double,int> secantMethod(double a,double b,double target){
     return {b,0};
   }
 
-  const double rsdl=1e-11;
+  const double rsdl=RESIDUAL;
   const int max_iter=100;
   int i=0;
   double ans=b;
@@ -103,6 +107,34 @@ pair<double,int> secantMethod(double a,double b,double target){
   return {ans,i};
 }
 
+pair<double,int> newtonsMethod(double init,double target){
+  double finit_diff=f(init)-target;
+  if(finit_diff==0){return {init,0};}
+  double rsdl=RESIDUAL;
+  int max_iter=100;
+  int i=0;
+  double ans=init;
+  double fans_diff=finit_diff;
+  double df_ans=df(ans);
+  while(abs(fans_diff)>rsdl && i<max_iter){
+    if(df_ans==0){
+      cout<<"ERROR: derivative is zero."<<endl;
+      return {NAN,0};
+    }
+    ans=ans-(fans_diff/df_ans);
+    fans_diff=f(ans)-target;
+    df_ans=df(ans);
+    i++;
+  }
+  return {ans, i};
+}
+
+double residual(double x,double target,double (*func)(double)){
+  //double (*func)(double) is a function pointer, which points to a function that takes a double and returns a double.
+  //first double is the return type of "func",second double is the parameter type of "func".
+  return abs(func(x)-target);
+}
+
 void FindRoot() {
   int method = 0;
   cout << "----Find root.----\nChoose a method.\n1:Bisection method.\n2:Secant "
@@ -118,7 +150,9 @@ void FindRoot() {
       delete[] usrin;
       break;
     }
+    double res=residual(ans.first,usrin[2],f);
     printf("Find answer: %.8f in %i steps.\n", ans.first, ans.second);
+    printf("Residual: %.8e\n",res);
     delete[] usrin;
     break;
   }
@@ -130,12 +164,27 @@ void FindRoot() {
       delete[] usrin;
       break;
     }
+    double res=residual(ans.first,usrin[2],f);
     printf("Find answer: %.11f in %i steps.\n", ans.first, ans.second);
+    printf("Residual: %.8e\n",res);
     delete[] usrin;
     break;
   }
   case 3: {
     cout << "Use Newton's method." << endl;
+    double init,target;
+    cout<<"Give the initial value and the target value."<<endl;
+    cin>>init>>target;
+    pair<double,int> ans=newtonsMethod(init,target);
+    if(isnan(ans.first)){
+      break;
+    }
+    if(ans.second==100){
+      cout<<"Warning: Method didn't converge in 100 steps."<<endl;
+    }
+    double res=residual(ans.first,target,f);
+    printf("Find answer: %.11f in %i steps.\n", ans.first, ans.second);
+    printf("Residual: %.8e\n",res);
     break;
   }
   default: {
