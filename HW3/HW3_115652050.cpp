@@ -1,4 +1,5 @@
 #include <cmath>
+#include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -91,6 +92,21 @@ struct vector {
   void clear() { size = 0; }
 };
 
+void printMatrix(const vector<vector<double>> &M) {
+  int row = M.size;
+  int col = M[0].size;
+  for (int i = 0; i < row; i++) {
+    for (int j = 0; j < col; j++) {
+      if (abs(M[i][j]) < 1e-4) {
+        cout << "\t" << 0;
+      } else {
+        cout << "\t" << fixed << setprecision(4) << M[i][j];
+      }
+    }
+    cout << endl;
+  }
+}
+
 void fillMatrix(vector<vector<double>> &M) {
   // 檢查 cin 的緩衝區裡面有沒有殘留換行符號，有的話才清除
   if (cin.peek() == '\n') {
@@ -113,7 +129,50 @@ void fillMatrix(vector<vector<double>> &M) {
   }
 }
 
-void GE(vector<vector<double>> A, vector<vector<double>> P) {}
+void GE(vector<vector<double>> &A, vector<vector<double>> &P) {
+  int row, col;
+  row = A.size;
+  col = A[0].size;
+  int GE_level;
+  if (row < col) {
+    GE_level = row;
+  } else {
+    GE_level = col;
+  }
+  for (int i = 0; i < GE_level; i++) {
+    double pivot = A[i][i];
+    int count = i;
+    while (pivot == 0 && (count + 1) < row) {
+      count++;
+      pivot = A[count][i];
+    }
+    if (count == row) {
+      continue;
+    } // 如果這個col全部都是0那就直接換下一個col作消去
+    if (count != i) { // 代表要作row change
+      vector<double> temp = A[i];
+      A[i] = A[count];
+      A[count] = temp;
+      temp = P[i];
+      P[i] = P[count];
+      P[count] = temp;
+    }
+    for (int j = i + 1 /*當前的row不用作消去*/; j < row; j++) {
+      double elim = A
+          [j]
+          [i]; // 這一個row的所有元素都會用到這個元素，但這個元素在地一個迴圈就會被消去，所以要額外寫一個變數保留他
+               // 即row_j -= {row_pivot/pivot} * {row_j第一個非0元素}
+      if (elim == 0) {
+        continue;
+      }
+      for (int k = i /*這代表當前的col座標所以不用加1*/; k < col; k++) {
+        double coff = A[i][k] * elim; // 當pivot那一行對應col的元素*倍率
+        coff /= pivot;
+        A[j][k] = A[j][k] - coff;
+      }
+    }
+  }
+}
 
 void solLinearSys() {
   cout << "----Solve Linear System----" << endl;
@@ -125,8 +184,14 @@ void solLinearSys() {
   fillMatrix(A);
   vector<vector<double>> P(row, vector<double>(row, 0));
   for (int i = 0; i < row; i++) {
-    P[i][i] = 0;
+    P[i][i] = 1;
   }
+  GE(A, P);
+
+  cout << "----Result----\n" << "A=>" << endl;
+  printMatrix(A);
+  cout << "P=" << endl;
+  printMatrix(P);
 }
 
 int main() {
