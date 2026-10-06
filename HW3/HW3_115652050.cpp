@@ -5,9 +5,9 @@
 #include <string>
 
 using namespace std;
-template <typename T>
 
-struct vector {
+// 每次在用的時候都要在函式上方重新宣告
+template <typename T> struct vector {
   int size;
   T *data;
   int capacity;
@@ -92,44 +92,61 @@ struct vector {
   void clear() { size = 0; }
 };
 
-void printMatrix(const vector<vector<double>> &M) {
-  int row = M.size;
-  int col = M[0].size;
-  for (int i = 0; i < row; i++) {
-    for (int j = 0; j < col; j++) {
-      if (abs(M[i][j]) < 1e-4) {
-        cout << "\t" << 0;
-      } else {
-        cout << "\t" << fixed << setprecision(4) << M[i][j];
-      }
+template <typename T> void printVector(const vector<T> &V) {
+  int digits = 4;
+  digits *= -1;
+  double precision = pow(10, digits);
+  int len = V.size;
+  for (int i = 0; i < len; i++) {
+    if (abs(V[i]) < precision) {
+      cout << setw(10) << 0;
+    } else {
+      cout << setw(10) << fixed << setprecision(digits * (-1)) << V[i];
     }
-    cout << endl;
+  }
+  cout << endl;
+}
+
+template <typename T> void printMatrix(const vector<vector<T>> &M) {
+  int row = M.size;
+  for (int i = 0; i < row; i++) {
+    printVector(M[i]);
   }
 }
 
-void fillMatrix(vector<vector<double>> &M) {
+template <typename T> void fillMatrix(vector<vector<T>> &M) {
+  int row = M.size;
+  cout << "Put the element here(by row):\n";
+  cout << "Put all value in the same row in same line and divide them by "
+          "<space> and press <Enter> after finished a row."
+       << endl;
+  for (int i = 0; i < row; i++) {
+    fillVector(M[i]);
+  }
+}
+
+template <typename T> void fillVector(vector<T> &V) {
   // 檢查 cin 的緩衝區裡面有沒有殘留換行符號，有的話才清除
   if (cin.peek() == '\n') {
     cin.ignore();
   }
-  int row = M.size;
-  int column = M[0].size;
-  cout << "Put the element here(by row):\n";
+  int length = V.size;
+  // cout<<"Put all value in same line and divide them by <space>."<<endl;
   string line;
 
-  for (int i = 0; i < row; i++) {
-    getline(cin, line);
-    stringstream ssline(line);
-    int num;
-    M[i].clear();
-    while (ssline >> num) {
-      M[i].push_back(num);
-    }
-    line = "";
+  getline(cin, line);
+  stringstream ssline(line);
+  T num;
+  int i;
+  V.clear();
+  while (ssline >> num) {
+    V.push_back(num);
   }
+  line = "";
 }
 
-void GE(vector<vector<double>> &A, vector<vector<double>> &P) {
+void extendedMatrixGE(vector<vector<double>> &A, vector<vector<int>> &P,
+                      vector<double> &b) {
   int row, col;
   row = A.size;
   col = A[0].size;
@@ -149,49 +166,71 @@ void GE(vector<vector<double>> &A, vector<vector<double>> &P) {
     if (count == row) {
       continue;
     } // 如果這個col全部都是0那就直接換下一個col作消去
+
     if (count != i) { // 代表要作row change
-      vector<double> temp = A[i];
-      A[i] = A[count];
-      A[count] = temp;
-      temp = P[i];
-      P[i] = P[count];
-      P[count] = temp;
+      swap(A[i], A[count]);
+      swap(P[i], P[count]);
+      swap(b[i], b[count]);
     }
+
     for (int j = i + 1 /*當前的row不用作消去*/; j < row; j++) {
-      double elim = A
-          [j]
-          [i]; // 這一個row的所有元素都會用到這個元素，但這個元素在地一個迴圈就會被消去，所以要額外寫一個變數保留他
-               // 即row_j -= {row_pivot/pivot} * {row_j第一個非0元素}
+      double elim = A[j][i];
+      // 這一個row的所有元素都會用到這個元素，但這個元素在地一個迴圈就會被消去，所以要額外寫一個變數保留他
+      // 即row_j -= row_pivot * {row_j第一個非0元素}/pivot
       if (elim == 0) {
         continue;
       }
       for (int k = i /*這代表當前的col座標所以不用加1*/; k < col; k++) {
-        double coff = A[i][k] * elim; // 當pivot那一行對應col的元素*倍率
+        double coff = A[i][k] * elim; // 當pivot那一row對應col的元素*倍率
         coff /= pivot;
         A[j][k] = A[j][k] - coff;
       }
+      double coff_b = elim / pivot;
+      b[j] -= b[i] * coff_b;
     }
+  }
+}
+
+vector<double> backSub(const vector<vector<double>> &A,
+                       const vector<vector<int>> &P,
+                       const vector<double> &b) { // Back substitution
+  int row = b.size;
+  int col = A[0].size;
+  // 理論上col=row
+  int index = 0;
+  double temp_b;
+  vector<double> value(
+      row, NAN); // 這是用來算出數值的向量 沒有處理因為row change造成的錯位
+  vector<double> x(row, NAN);            // 這是要回傳的向量 需要重新排序
+  for (int i = row - 1; i > (-1); i--) { // 由下往上
+    temp_b = b[i];
+    for (int j = 0; j < (col - i + 1); j++) {
+      temp_b -= A[i][j] * x[j];
+    }
+    temp_b /= A[i][i];
+    value[i] = temp_b;
+    // 處理x的順序因為row change而亂掉的問題
   }
 }
 
 void solLinearSys() {
   cout << "----Solve Linear System----" << endl;
   int row, col;
-  cout << "The size of matrix.(row,column)" << endl;
+  cout << "The size of matrix A.(row,column)" << endl;
   cin >> row >> col;
   vector<vector<double>> A(row, vector<double>(col, 0));
-  cout << "Put in the value of the matrix." << endl;
+  cout << "Put in the value of the matrix A." << endl;
   fillMatrix(A);
-  vector<vector<double>> P(row, vector<double>(row, 0));
+  vector<vector<int>> P(row, vector<int>(row, 0));
   for (int i = 0; i < row; i++) {
     P[i][i] = 1;
   }
-  GE(A, P);
 
-  cout << "----Result----\n" << "A=>" << endl;
-  printMatrix(A);
-  cout << "P=" << endl;
-  printMatrix(P);
+  cout << "Put in the value of the vector b." << endl;
+  vector<double> b(row, 0);
+  fillVector(b);
+
+  extendedMatrixGE(A, P, b);
 }
 
 int main() {
