@@ -228,7 +228,8 @@ void extendedMatrixGE(vector<vector<double> > &A, vector<vector<int> > &P, vecto
 			}
 			for (int k = i + 1 /*因為A[j][i]最後一定會變成0,所以直接從下一個開始*/;
 			     k < col; k++) {
-				double coff = A[i][k] * elim; // 當pivot那一row對應col的元素*倍率
+				double coff =
+					A[i][k] * multiplier; // 當pivot那一row對應col的元素*倍率
 				A[j][k] = A[j][k] - coff;
 			}
 			A[j][i] = 0.0; //手動賦值
