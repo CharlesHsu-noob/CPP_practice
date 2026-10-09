@@ -172,7 +172,7 @@ bool isLinearSysSolvable(const vector<vector<double> > &M)
 	//在GE後執行
 	//從最後一個row開始檢查可以最小化計算時間
 	//此時M是upper triangular,只需要從M[i][i]開始檢查
-	for (int i = row; i > (-1); i--) {
+	for (int i = row - 1; i > (-1); i--) {
 		a = -1; //先預設無解
 		for (int j = i; j < col; j++) {
 			if (M[i][j] != 0) {
@@ -309,6 +309,8 @@ void solLinearSys()
 
 	if (!isLinearSysSolvable(A)) {
 		cout << "This matrix is not solvable or has infinite solution!" << endl;
+		printMatrix(A);
+		printVector(b);
 		return;
 	}
 
