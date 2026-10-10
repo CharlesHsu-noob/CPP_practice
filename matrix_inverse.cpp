@@ -191,7 +191,7 @@ template <typename T> void fillVector(vector<T> &V)
 	if (cin.peek() == '\n') {
 		cin.ignore();
 	}
-	int length = V.size;
+	//int length = V.size;
 	// cout<<"Put all value in same line and divide them by <space>."<<endl;
 	string line;
 

@@ -27,6 +27,22 @@ Report of PROGRAMMING
 
 四、測試：（展示測試過程，說明所撰寫的C++程式有達成 PROGRAMMING 之任務）
 
+----Solve Linear System----
+The size of matrix A.(row,column)
+5 5
+Put in the value of the matrix A.
+Put the element here(by row):
+Put all value in the same row in same line and divide them by <space> and press <Enter> after finished a row.
+1 2 0 -1 1
+1 3 1 -1 3
+2 3 0 -3 0
+0 2 3 0 5
+-1 -2 0 -1 -2
+Put in the value of the vector b.
+2 5 2 10 -6
+result of Ax=b,x=
+    7.0000   -3.0000    2.0000    1.0000    2.0000
+
 
 五、自評：
 
