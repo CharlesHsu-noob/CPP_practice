@@ -10,6 +10,8 @@ template <typename T>
 struct vector {
 	int size;
 	T *data;
+	//因為strcut裡面包含了new 所以一定要自己寫rule of 5
+	//否則讓編譯器自己生成會發生double free造成程式崩潰
 	int capacity;
 
 	// constructor
@@ -32,7 +34,7 @@ struct vector {
 	}
 	// 拷貝建構子 copy constructor
 	// 當全新的vector B要長的跟A一樣時(vector B=A;),
-	// 執行Deep Copy 避免兩個vector共用同一塊Heap記憶體(Shellow Copy),
+	// 執行Deep Copy 避免兩個vector共用同一塊Heap記憶體(Shallow Copy),
 	// 防止程式結束時delete一塊記憶體兩次導致crash.
 	vector(const vector &other)
 	{
@@ -61,6 +63,58 @@ struct vector {
 			data[i] = other.data[i];
 		}
 		// 回傳自身的參考 讓他支援連續等號
+		return *this;
+	}
+
+	/*Move constructor 和 Move Assignment operator
+        是專門為了不必要的Deep Copy而生
+        以A=B舉例
+        當被賦予的值(B)是R-value時就會觸發Move Assignment operator
+        如果B是L-value則會使用Copy Assignment operator
+        如果是新建的變數vector<T> A = B; 
+        會觸發 Copy Constructor；
+        而如果是 vector<T> A = std::move(B); 或等號右邊是暫存結果，則會觸發 Move Constructor。*/
+
+	//Move constructor移動建構子
+	//在執行swap(vector<T>,vector<T>)的時候為了避免編譯器temp一份新的記憶體然後把東西全部複製過去
+	//這個建構子使他只會交換記憶體位置(pointer)而不會造成時間複雜度過高
+	//這個建構子適用於 vector<T> temp=std::move(A)
+	vector(vector &&other) noexcept
+	/*
+         * &&other(右參照值):即將被刪除,可以搶走的物件(R-value)
+         * noexcept:讓swap不要報錯*/
+	{
+		//這裡只交換記憶體位置而不是用for迴圈把所有資料值交換
+		size = other.size;
+		data = other.data;
+		capacity = other.capacity;
+
+		other.size = 0;
+		other.capacity = 0;
+		other.data = nullptr;
+		//要把other的記憶體位置設為nullptr
+		//不然other執行destructor的時候會把這個記憶體位置的資料清掉
+	}
+
+	//Move Assignment operator
+	//防止自己賦值給自己
+	//適用於 vector<T> A(a,x);
+	//      vector<T> B(b,y);
+	//此時A,B的大小並不一樣
+	//B=std::move(A);
+	//B需要先處理好自己的內容才能接收A的內容
+	vector &operator=(vector &&other) noexcept
+	{
+		if (this != &other) {
+			delete[] data;
+			size = other.size;
+			capacity = other.capacity;
+			data = other.data;
+
+			other.size = 0;
+			other.capacity = 0;
+			other.data = nullptr;
+		}
 		return *this;
 	}
 
@@ -164,7 +218,7 @@ template <typename T> void fillMatrix(vector<vector<T> > &M)
 	}
 }
 
-vector<double> LbackSub(const vector<vector<double> > &A, const vector<double> &b)
+void LbackSub(const vector<vector<double> > &A, const vector<double> &b, vector<double> &value)
 { // Back substitution
 	// LU version
 	//A同時包含L和U
@@ -172,7 +226,6 @@ vector<double> LbackSub(const vector<vector<double> > &A, const vector<double> &
 	int col = A[0].size;
 	// 理論上col=row
 	double temp_b;
-	vector<double> value(row, NAN);
 	for (int i = 0; i < row; i++) { // 由上往下
 		temp_b = b[i];
 		for (int j = 0; j < i; j++) {
@@ -181,10 +234,9 @@ vector<double> LbackSub(const vector<vector<double> > &A, const vector<double> &
 		//L的對角線是1所以不需要除
 		value[i] = temp_b;
 	}
-	return value;
 }
 
-vector<double> UbackSub(const vector<vector<double> > &A, const vector<double> &b)
+void UbackSub(const vector<vector<double> > &A, const vector<double> &b, vector<double> &value)
 { // Back substitution
 	// LU version
 	//A同時包含L和U
@@ -192,7 +244,6 @@ vector<double> UbackSub(const vector<vector<double> > &A, const vector<double> &
 	int col = A[0].size;
 	// 理論上col=row
 	double temp_b;
-	vector<double> value(row, NAN);
 	for (int i = row - 1; i > (-1); i--) { // 由下往上
 		temp_b = b[i];
 		for (int j = i + 1; j < col; j++) { //起點是第i row第i+1 col
@@ -201,26 +252,18 @@ vector<double> UbackSub(const vector<vector<double> > &A, const vector<double> &
 		temp_b /= A[i][i];
 		value[i] = temp_b;
 	}
-	return value;
 }
 
-void inverse(vector<vector<double> > A_copy, vector<vector<double> > &Ainv)
+void decomposeLU(vector<vector<double> > &A, vector<int> &P_idx)
 {
-	int row, col;
-	row = A_copy.size;
-	col = A_copy[0].size;
+	int row = A.size;
+	int col = A[0].size;
 	int GE_level;
 	if (row < col) {
 		GE_level = row;
 	} else {
 		GE_level = col;
 	}
-
-	vector<vector<double> > P(row, vector<double>(col, 0));
-	for (int i = 0; i < row; i++) {
-		P[i][i] = 1;
-	}
-
 	for (int i = 0; i < GE_level; i++) {
 		/*
          *這個矩陣消去完後就會變成U
@@ -228,21 +271,21 @@ void inverse(vector<vector<double> > A_copy, vector<vector<double> > &Ainv)
          *所以可以直接把下半部拿來儲存L,因為L是下三角矩陣(對角線上的數字都為1所以也不需要額外存)
          *所以最後A會變成一個合體矩陣
          * */
-		double pivot = A_copy[i][i];
+		double pivot = A[i][i];
 		int count = i;
 		while (pivot == 0 && (count + 1) < row) {
 			count++;
-			pivot = A_copy[count][i];
+			pivot = A[count][i];
 		}
 		if (count == row) {
 			continue;
 		} // 如果這個col全部都是0那就直接換下一個col作消去
 		if (count != i) { // 代表要作row change
-			swap(A_copy[i], A_copy[count]);
-			swap(P[i], P[count]);
+			swap(A[i], A[count]);
+			swap(P_idx[i], P_idx[count]);
 		}
 		for (int j = i + 1 /*當前的row不用作消去*/; j < row; j++) {
-			double elim = A_copy[j][i];
+			double elim = A[j][i];
 			// 這一個row的所有元素都會用到這個元素，但這個元素在地一個迴圈就會被消去，所以要額外寫一個變數保留他
 			// 即row_j -= {row_pivot/pivot} * {row_j第一個非0元素}
 			double multiplier = elim / pivot;
@@ -250,31 +293,66 @@ void inverse(vector<vector<double> > A_copy, vector<vector<double> > &Ainv)
 				continue;
 			}
 			for (int k = i + 1; k < col; k++) {
-				double coff = A_copy[i][k] *
-					      multiplier; // 當pivot那一行對應col的元素*倍率
-				A_copy[j][k] = A_copy[j][k] - coff;
+				// 當pivot那一行對應col的元素*倍率
+				A[j][k] -= A[i][k] * multiplier;
 			}
-			A_copy[j][i] =
+			A[j][i] =
 				multiplier; //因為這個地方永遠都會是0,所以直接把他拿來儲存L矩陣裡面的數值,不用重新宣告一個變數
 		}
 	}
+}
+
+void solInverseVector(const vector<vector<double> > &LU, const vector<int> &P_idx,
+		      vector<vector<double> > &Ainv)
+{
 	//此時A上半部是U,下半部是L
 	//接下來要求U^-1,L^-1
 	//Let PAx=LUx=Pe,[x1,x2,x3...]=A^-1 ; [e1,e2,e3...]=I.
 	//let Ux=y, then Ly=Pe.=>Pe_i=P[i]
-	vector<double> y, x;
+	int row = LU.size;
+	int col = LU[0].size;
+	vector<double> y(row, 0.0);
+	vector<double> x(row, 0.0);
+	vector<double> e(row, 0.0);
 	for (int i = 0; i < col; i++) {
-		y = LbackSub(A_copy, P[i]);
-		x = UbackSub(A_copy, y);
+		//重置e
+		for (int j = 0; j < row; j++) {
+			e[j] = 0;
+		}
+		//找出1應該要放在e的哪一個位置
+		for (int j = 0; j < row; j++) {
+			if (P_idx[j] == i) {
+				e[j] = 1.0;
+				break;
+			}
+		}
+
+		LbackSub(LU, e, y);
+		UbackSub(LU, y, x);
 		for (int j = 0; j < row; j++) {
 			Ainv[j][i] = x[j];
 		}
 	}
 }
 
+void inverse(vector<vector<double> > A_copy, vector<vector<double> > &Ainv)
+{
+	int row;
+	row = A_copy.size;
+
+	vector<int> P_idx(row);
+	for (int i = 0; i < row; i++) {
+		P_idx[i] = i;
+	}
+
+	decomposeLU(A_copy, P_idx);
+
+	solInverseVector(A_copy, P_idx, Ainv);
+}
+
 void findMatrixInverse()
 {
-	cout << "----Solve Linear System----" << endl;
+	cout << "----Find Matrix Inverse----" << endl;
 	int row, col;
 	cout << "The size of matrix A.(row,column)" << endl;
 	cin >> row >> col;
