@@ -75,3 +75,15 @@ int main() {
 
     return 0;
 }
+
+/*
+Normal way:
+Total cost time: 19606741800 ns
+Avg cost time: 19.6067 ns
+
+Honor way:
+Total cost time: 11422829800 ns
+Avg cost time: 11.4228 ns
+
+(Verification: Both methods produce the same result)
+*/
