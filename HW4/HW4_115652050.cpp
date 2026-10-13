@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <chrono>
 #include <vector>
+#include <x86intrin.h>
 
 using namespace std;
 
@@ -66,7 +67,7 @@ double nornalWayPolynomial(const double coff[], const int capacity, const double
 template <typename T> T honorWayPolynomial(const T coff[], const int capacity, const T x)
 {
 	T ans = coff[capacity - 1];
-	for (int i = capacity - 2; i > 0; i--) {
+	for (int i = capacity - 2; i > (-1); i--) {
 		ans *= x;
 		ans += coff[i];
 	}
@@ -98,21 +99,15 @@ void FindPolynomialValue()
 	double x;
 	cin >> x;
 
-	auto start = chrono::high_resolution_clock::now();
-	double ans_a = nornalWayPolynomial(coff, capacity, x);
-	auto end = chrono::high_resolution_clock::now();
-	auto duration_a = chrono::duration_cast<chrono::nanoseconds>(end - start);
+	volatile double ans_a = nornalWayPolynomial(coff, capacity, x);
 	cout << "Normal way:" << endl;
 	cout << "Result= " << fixed << setprecision(16) << ans_a << endl;
-	cout << "Cost: " << duration_a.count() << " nanoseconds" << endl;
 
-	start = chrono::high_resolution_clock::now();
-	double ans_b = honorWayPolynomial(coff, capacity, x);
-	end = chrono::high_resolution_clock::now();
-	auto duration_b = chrono::duration_cast<chrono::nanoseconds>(end - start);
+	volatile double ans_b = honorWayPolynomial(coff, capacity, x);
 	cout << "Honor way:" << endl;
 	cout << "Result= " << fixed << setprecision(16) << ans_b << endl;
-	cout << "Cost: " << duration_b.count() << " nanoseconds" << endl;
+
+	cout<<endl;
 
 	if (isTwoValueSame(ans_a, ans_b)) {
 		cout << "Same." << endl;
@@ -154,7 +149,7 @@ void complexPolynomial()
 	complex<double> x;
 	cin >> x;
 	complex<double> ans = horner(coff, x);
-	cout << "Result= " << ans.real() << " + " << ans.imag() << "i" << endl;
+	cout << "Result= " << ans.real() << " + " << ans.imag() << " i" << endl;
 }
 
 int main()
