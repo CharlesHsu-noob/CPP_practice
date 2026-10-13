@@ -10,6 +10,7 @@ using namespace std;
 // Newton's Method residual:1e-11
 // printf("&e",residual) to print the residual in scientific notation.
 const double RESIDUAL = 1e-11;
+const double ERROR = 1e-8;
 
 double f(double x)
 {
@@ -37,6 +38,37 @@ double *getABTInput()
 	return usrin;
 }
 
+//如果達到停止條件回傳 -1 讓while迴圈跳出
+
+bool checkResidual(double fx)
+{
+	return std::abs(fx) < RESIDUAL;
+}
+
+int checkAbsError(double currentX, double preX)
+{
+	return std::abs(currentX - preX) < ERROR;
+}
+
+int checkRelaError(double currentX, double preX)
+{
+	if (currentX == 0.0) {
+		return false;
+	}
+	return (std::abs(currentX - preX) / std::abs(currentX)) < ERROR;
+}
+
+bool converge(double current_x, double prev_x, double fx)
+{
+	if (checkResidual(fx))
+		return true;
+	if (checkAbsError(current_x, prev_x))
+		return true;
+	if (checkRelaError(current_x, prev_x))
+		return true;
+	return false;
+}
+
 pair<double, int> bisectionMethod(double a, double b, double target)
 {
 	// a is the left boundary and b is the right boundary.
@@ -56,12 +88,14 @@ pair<double, int> bisectionMethod(double a, double b, double target)
 	const double rsdl = RESIDUAL; // rsdl->residual
 	const int max_iter = 100; // iter->iterations迭代
 	double ans = (a + b) / 2.0;
+	double previous_ans = a;
 	double fans_diff = f(ans) - target;
 	int i = 0;
-	while (abs(fans_diff) > rsdl && i < max_iter) {
-		ans = (a + b) / 2.0;
-		fans_diff = f(ans) - target;
-		if (abs(fans_diff) <= rsdl) {
+	if (checkResidual(fans_diff)) {
+		return { ans, i };
+	}
+	while (i < max_iter) {
+		if (converge(ans, previous_ans, fans_diff)) {
 			break;
 		}
 		if (fa_diff * fans_diff > 0) {
@@ -72,6 +106,9 @@ pair<double, int> bisectionMethod(double a, double b, double target)
 			fb_diff = fans_diff; // 可省略
 			// 判斷式只會用到fa_diff,這個變數永遠不會被調用
 		}
+		previous_ans = ans;
+		ans = (a + b) / 2.0;
+		fans_diff = f(ans) - target;
 		i++;
 	}
 	return { ans, i };
@@ -92,14 +129,19 @@ pair<double, int> secantMethod(double a, double b, double target)
 	const int max_iter = 100;
 	int i = 0;
 	double ans = b;
+	double previous_ans = ans;
 	double fans_diff = fb_diff;
 	double m = 0;
-	while (abs(fans_diff) > rsdl && i < max_iter) {
+	if (checkResidual(fans_diff)) {
+		return { ans, i };
+	}
+	while (i < max_iter) {
 		if (fa_diff == fb_diff) {
 			cout << "ERROR: f(a) and f(b) should not be equal." << endl;
 			return { NAN, 0 };
 		}
 		// main calculation
+		previous_ans = ans;
 		m = (fb_diff - fa_diff) / (b - a);
 		ans = b - (fb_diff / m);
 
@@ -108,6 +150,9 @@ pair<double, int> secantMethod(double a, double b, double target)
 		b = ans;
 		fb_diff = f(b) - target;
 		fans_diff = fb_diff;
+		if (converge(ans, previous_ans, fans_diff)) {
+			break;
+		}
 		i++;
 	}
 	return { ans, i };
@@ -123,16 +168,24 @@ pair<double, int> newtonsMethod(double init, double target)
 	int max_iter = 100;
 	int i = 0;
 	double ans = init;
+	double previous_ans = ans;
 	double fans_diff = finit_diff;
 	double df_ans = df(ans);
-	while (abs(fans_diff) > rsdl && i < max_iter) {
+	if (checkResidual(fans_diff)) {
+		return { ans, i };
+	}
+	while (i < max_iter) {
 		if (df_ans == 0) {
 			cout << "ERROR: derivative is zero." << endl;
 			return { NAN, 0 };
 		}
+		previous_ans = ans;
 		ans = ans - (fans_diff / df_ans);
 		fans_diff = f(ans) - target;
 		df_ans = df(ans);
+		if (converge(ans, previous_ans, fans_diff)) {
+			break;
+		}
 		i++;
 	}
 	return { ans, i };
