@@ -42,12 +42,12 @@ double *getABTInput()
 
 bool checkResidual(double fx)
 {
-	return std::abs(fx) < RESIDUAL;
+	return std::fabs(fx) < RESIDUAL;
 }
 
 int checkAbsError(double currentX, double preX)
 {
-	return std::abs(currentX - preX) < ERROR;
+	return std::fabs(currentX - preX) < ERROR;
 }
 
 int checkRelaError(double currentX, double preX)
@@ -55,7 +55,7 @@ int checkRelaError(double currentX, double preX)
 	if (currentX == 0.0) {
 		return false;
 	}
-	return (std::abs(currentX - preX) / std::abs(currentX)) < ERROR;
+	return (std::fabs(currentX - preX) / std::fabs(currentX)) < ERROR;
 }
 
 bool converge(double current_x, double prev_x, double fx)
@@ -196,7 +196,7 @@ double residual(double x, double target, double (*func)(double))
 	// double (*func)(double) is a function pointer, which points to a function
 	// that takes a double and returns a double. first double is the return type
 	// of "func",second double is the parameter type of "func".
-	return abs(func(x) - target);
+	return std::fabs(func(x) - target);
 }
 
 void FindRoot()

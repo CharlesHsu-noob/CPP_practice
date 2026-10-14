@@ -114,7 +114,7 @@ template <typename T> void printVector(const vector<T> &V)
 	double precision = pow(10, digits);
 	int len = V.size;
 	for (int i = 0; i < len; i++) {
-		if (abs(V[i]) < precision) {
+		if (std::fabs(V[i]) < precision) {
 			cout << setw(10) << 0;
 		} else {
 			cout << setw(10) << fixed << setprecision(digits * (-1)) << V[i];
