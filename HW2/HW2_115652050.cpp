@@ -10,10 +10,7 @@ using namespace std;
 // Newton's Method residual:1e-11
 // printf("&e",residual) to print the residual in scientific notation.
 const double RESIDUAL = 1e-11;
-<<<<<<< HEAD
-=======
 const double ERROR = 1e-8;
->>>>>>> 1bef105ef9837589a394931c8840786fd1dbb08a
 
 double f(double x)
 {
@@ -41,8 +38,6 @@ double *getABTInput()
 	return usrin;
 }
 
-<<<<<<< HEAD
-=======
 //如果達到停止條件回傳 -1 讓while迴圈跳出
 
 bool checkResidual(double fx)
@@ -74,7 +69,6 @@ bool converge(double current_x, double prev_x, double fx)
 	return false;
 }
 
->>>>>>> 1bef105ef9837589a394931c8840786fd1dbb08a
 pair<double, int> bisectionMethod(double a, double b, double target)
 {
 	// a is the left boundary and b is the right boundary.
@@ -94,14 +88,6 @@ pair<double, int> bisectionMethod(double a, double b, double target)
 	const double rsdl = RESIDUAL; // rsdl->residual
 	const int max_iter = 100; // iter->iterations迭代
 	double ans = (a + b) / 2.0;
-<<<<<<< HEAD
-	double fans_diff = f(ans) - target;
-	int i = 0;
-	while (abs(fans_diff) > rsdl && i < max_iter) {
-		ans = (a + b) / 2.0;
-		fans_diff = f(ans) - target;
-		if (abs(fans_diff) <= rsdl) {
-=======
 	double previous_ans = a;
 	double fans_diff = f(ans) - target;
 	int i = 0;
@@ -110,7 +96,6 @@ pair<double, int> bisectionMethod(double a, double b, double target)
 	}
 	while (i < max_iter) {
 		if (converge(ans, previous_ans, fans_diff)) {
->>>>>>> 1bef105ef9837589a394931c8840786fd1dbb08a
 			break;
 		}
 		if (fa_diff * fans_diff > 0) {
@@ -121,12 +106,9 @@ pair<double, int> bisectionMethod(double a, double b, double target)
 			fb_diff = fans_diff; // 可省略
 			// 判斷式只會用到fa_diff,這個變數永遠不會被調用
 		}
-<<<<<<< HEAD
-=======
 		previous_ans = ans;
 		ans = (a + b) / 2.0;
 		fans_diff = f(ans) - target;
->>>>>>> 1bef105ef9837589a394931c8840786fd1dbb08a
 		i++;
 	}
 	return { ans, i };
@@ -147,11 +129,6 @@ pair<double, int> secantMethod(double a, double b, double target)
 	const int max_iter = 100;
 	int i = 0;
 	double ans = b;
-<<<<<<< HEAD
-	double fans_diff = fb_diff;
-	double m = 0;
-	while (abs(fans_diff) > rsdl && i < max_iter) {
-=======
 	double previous_ans = ans;
 	double fans_diff = fb_diff;
 	double m = 0;
@@ -159,16 +136,12 @@ pair<double, int> secantMethod(double a, double b, double target)
 		return { ans, i };
 	}
 	while (i < max_iter) {
->>>>>>> 1bef105ef9837589a394931c8840786fd1dbb08a
 		if (fa_diff == fb_diff) {
 			cout << "ERROR: f(a) and f(b) should not be equal." << endl;
 			return { NAN, 0 };
 		}
 		// main calculation
-<<<<<<< HEAD
-=======
 		previous_ans = ans;
->>>>>>> 1bef105ef9837589a394931c8840786fd1dbb08a
 		m = (fb_diff - fa_diff) / (b - a);
 		ans = b - (fb_diff / m);
 
@@ -177,12 +150,9 @@ pair<double, int> secantMethod(double a, double b, double target)
 		b = ans;
 		fb_diff = f(b) - target;
 		fans_diff = fb_diff;
-<<<<<<< HEAD
-=======
 		if (converge(ans, previous_ans, fans_diff)) {
 			break;
 		}
->>>>>>> 1bef105ef9837589a394931c8840786fd1dbb08a
 		i++;
 	}
 	return { ans, i };
@@ -198,11 +168,6 @@ pair<double, int> newtonsMethod(double init, double target)
 	int max_iter = 100;
 	int i = 0;
 	double ans = init;
-<<<<<<< HEAD
-	double fans_diff = finit_diff;
-	double df_ans = df(ans);
-	while (abs(fans_diff) > rsdl && i < max_iter) {
-=======
 	double previous_ans = ans;
 	double fans_diff = finit_diff;
 	double df_ans = df(ans);
@@ -210,16 +175,10 @@ pair<double, int> newtonsMethod(double init, double target)
 		return { ans, i };
 	}
 	while (i < max_iter) {
->>>>>>> 1bef105ef9837589a394931c8840786fd1dbb08a
 		if (df_ans == 0) {
 			cout << "ERROR: derivative is zero." << endl;
 			return { NAN, 0 };
 		}
-<<<<<<< HEAD
-		ans = ans - (fans_diff / df_ans);
-		fans_diff = f(ans) - target;
-		df_ans = df(ans);
-=======
 		previous_ans = ans;
 		ans = ans - (fans_diff / df_ans);
 		fans_diff = f(ans) - target;
@@ -227,7 +186,6 @@ pair<double, int> newtonsMethod(double init, double target)
 		if (converge(ans, previous_ans, fans_diff)) {
 			break;
 		}
->>>>>>> 1bef105ef9837589a394931c8840786fd1dbb08a
 		i++;
 	}
 	return { ans, i };
@@ -238,11 +196,7 @@ double residual(double x, double target, double (*func)(double))
 	// double (*func)(double) is a function pointer, which points to a function
 	// that takes a double and returns a double. first double is the return type
 	// of "func",second double is the parameter type of "func".
-<<<<<<< HEAD
-	return abs(func(x) - target);
-=======
 	return std::fabs(func(x) - target);
->>>>>>> 1bef105ef9837589a394931c8840786fd1dbb08a
 }
 
 void FindRoot()
