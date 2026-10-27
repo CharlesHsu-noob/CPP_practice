@@ -14,7 +14,7 @@ const double ERROR = 1e-8;
 
 double f(double x)
 {
-	return pow(x, 2) - 4 * sin(x);
+	return x*x - 4 * sin(x);
 }
 
 double df(double x)
@@ -33,7 +33,7 @@ double *getABTInput()
    */
 	double *usrin = new double[3];
 	cout << "Give the boundary and the target.\n"
-	     << "a:left boundary\tb:right boundary  target:the value you want to find." << endl;
+	     << "a:left boundary\tb:right boundary  target:the value you want to find such that f(x)=target." << endl;
 	cin >> usrin[0] >> usrin[1] >> usrin[2];
 	return usrin;
 }
@@ -85,7 +85,6 @@ pair<double, int> bisectionMethod(double a, double b, double target)
 		return { b, 0 };
 	}
 
-	const double rsdl = RESIDUAL; // rsdl->residual
 	const int max_iter = 100; // iter->iterations迭代
 	double ans = (a + b) / 2.0;
 	double previous_ans = a;
@@ -164,7 +163,6 @@ pair<double, int> newtonsMethod(double init, double target)
 	if (finit_diff == 0) {
 		return { init, 0 };
 	}
-	double rsdl = RESIDUAL;
 	int max_iter = 100;
 	int i = 0;
 	double ans = init;
@@ -238,7 +236,7 @@ void FindRoot()
 	case 3: {
 		cout << "Use Newton's method." << endl;
 		double init, target;
-		cout << "Give the initial value and the target value." << endl;
+		cout << "Give the initial value and the target value(target:f(ans)=target)." << endl;
 		cin >> init >> target;
 		pair<double, int> ans = newtonsMethod(init, target);
 		if (isnan(ans.first)) {
