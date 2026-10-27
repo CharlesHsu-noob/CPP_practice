@@ -4,7 +4,6 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-#include <chrono>
 #include <vector>
 #include <x86intrin.h>
 
@@ -107,7 +106,7 @@ void FindPolynomialValue()
 	cout << "Honor way:" << endl;
 	cout << "Result= " << fixed << setprecision(16) << ans_b << endl;
 
-	cout<<endl;
+	cout << endl;
 
 	if (isTwoValueSame(ans_a, ans_b)) {
 		cout << "Same." << endl;
