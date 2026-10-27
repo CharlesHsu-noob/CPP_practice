@@ -1,4 +1,3 @@
-#include <cmath>
 #include <iostream>
 #include "my_vector.hpp"
 
