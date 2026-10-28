@@ -4,9 +4,40 @@
 #include <sstream>
 #include <iomanip>
 #include <vector>
+#include <complex>
 #include <x86intrin.h>
-
 using namespace std;
+
+template <typename T> struct complex {
+	T real;
+	T imag;
+	//constructor
+	complex(T rl = 0, T im = 0)
+		: real(rl)
+		, imag(im)
+	{
+	}
+
+	//operator
+	friend complex<T> operator*(const complex<T> &a, const complex<T> &b)
+	{
+		return complex<T>(a.real * b.real - a.imag * b.imag,
+				  a.real * b.imag + a.imag * b.real);
+	}
+	//for complex * real
+	friend complex<T> operator*(const complex<T> &z, const T &other)
+	{
+		return complex<T>(z.real * other, z.imag * other);
+	}
+	friend complex<T> operator+(const complex<T> &a, const complex<T> &b)
+	{
+		return complex<T>(a.real + b.real, a.imag + b.imag);
+	}
+	friend complex<T> operator-(const complex<T> &a, const complex<T> &b)
+	{
+		return complex<T>(a.real - b.real, a.imag - b.imag);
+	}
+};
 
 template <typename T> void fillVector(vector<T> &V)
 {
@@ -34,6 +65,48 @@ long long int factorial(int n)
 	long long int ans = 1;
 	for (int i = 2; i < n + 1; i++) {
 		ans *= i;
+	}
+	return ans;
+}
+
+int combination(int n, int k)
+{
+	if (k > n) {
+		return 0;
+	}
+	if (k > (n - k)) {
+		k = n - k;
+	}
+	int ans = 1;
+	for (int i = 1; i < k + 1; i++) { //在第i個迴圈時分子有i個連序正整數,一定可以被i整除
+		ans *= (n - i + 1);
+		ans /= i;
+	}
+	return ans;
+}
+
+double pNormal(double x, int n)
+{
+	double ans = 0.0;
+	int a = -1;
+	double temp = 0;
+	for (int i = 0; i < n + 1; i++) {
+		a *= -1;
+		temp = combination(n, i);
+		temp *= pow(x, n - i);
+		ans += a * temp;
+	}
+	return ans;
+}
+
+double pHonor(double x, int n)
+{
+	double ans = 1;
+	double a = 1;
+	for (int i = 1; i < n + 1; i++) {
+		ans *= x;
+		a *= -1;
+		ans += a * combination(n, i);
 	}
 	return ans;
 }
@@ -182,6 +255,33 @@ void compareTwoWaysWithTaylorExpasion()
 	cout << endl;
 }
 
+void expansionOfBinaryTheorom()
+{
+	cout << "The expansion of (x-1)^n where x=1.1 and n=1~20." << endl;
+	cout << "Normal way:" << endl;
+	for (int i = 1; i < 21; i++) {
+		cout << setw(10) << pNormal(1.1, i) << endl;
+	}
+	cout << endl;
+	cout << "Honor way:" << endl;
+	for (int i = 1; i < 21; i++) {
+		cout << setw(10) << pHonor(1.1, i) << endl;
+	}
+	cout << endl;
+
+	cout << "The expansion of (x-1)^n where x=1.01 and n=1~20." << endl;
+	cout << "Normal way:" << endl;
+	for (int i = 1; i < 21; i++) {
+		cout << setw(10) << pNormal(1.01, i) << endl;
+	}
+	cout << endl;
+	cout << "Honor way:" << endl;
+	for (int i = 1; i < 21; i++) {
+		cout << setw(10) << pHonor(1.01, i) << endl;
+	}
+	cout << endl;
+}
+
 int main()
 {
 	cout << "Choose the domain of x." << endl;
@@ -203,5 +303,6 @@ int main()
 	}
 	}
 	compareTwoWaysWithTaylorExpasion();
+	expansionOfBinaryTheorom();
 	return 0;
 }
