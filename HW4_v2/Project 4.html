@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Project 4</title>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  :root {
+    --ultramarine: #0033A0;
+    --ultramarine-deep: #041b4d;
+    --ink: #14161a;
+    --paper: #f7f8fb;
+    --paper-panel: #ffffff;
+    --rule: #d7dbe6;
+    --gray: #6b6f76;
+    --code-bg: #071233;
+    --code-text: #e7ecfa;
+    --code-accent: #7fa8ff;
+    --quote-bg: #eef2fb;
+    --h2-color: #041b4d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #eceef2;
+      --paper: #0d0f14;
+      --paper-panel: #14161d;
+      --rule: #2a2e3a;
+      --gray: #9aa0ab;
+      --quote-bg: #131a2e;
+      --code-bg: #05081a;
+      --code-text: #dbe4ff;
+      --h2-color: #9fbcff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #eceef2;
+    --paper: #0d0f14;
+    --paper-panel: #14161d;
+    --rule: #2a2e3a;
+    --gray: #9aa0ab;
+    --quote-bg: #131a2e;
+    --code-bg: #05081a;
+    --code-text: #dbe4ff;
+    --h2-color: #9fbcff;
+  }
+
+  * { box-sizing: border-box; }
+  html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Noto Serif TC", "Songti TC", serif;
+    line-height: 1.9;
+    padding: 40px 20px;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    -webkit-font-smoothing: antialiased;
+  }
+  .sans { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+
+  .masthead {
+    background: var(--ultramarine);
+    color: #ffffff;
+    border-radius: 12px;
+  }
+  .masthead-bar {
+    height: 6px;
+    background: linear-gradient(90deg, var(--ultramarine-deep), var(--ultramarine) 55%, #4d7fe0);
+  }
+  .masthead-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 36px 24px 30px;
+  }
+  .school-name {
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    opacity: 0.88;
+    margin: 0 0 4px;
+  }
+  .school-name-en {
+    font-size: 0.78rem;
+    opacity: 0.65;
+    margin: 0 0 22px;
+  }
+  .doc-title {
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    line-height: 1.5;
+  }
+  .doc-subtitle {
+    font-size: 1rem;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  .meta-panel {
+    max-width: 780px;
+    margin: -18px auto 0;
+    padding: 0 24px;
+  }
+  .meta-box {
+    background: var(--paper-panel);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 10px 28px;
+    font-size: 0.92rem;
+    color: var(--gray);
+  }
+  .meta-box .fill { border-bottom: 1px dashed var(--rule); color: var(--ink); padding-bottom: 2px; }
+  @media (max-width: 520px) {
+    .meta-box { grid-template-columns: 1fr; }
+  }
+
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 24px 90px;
+  }
+
+  .lede {
+    font-size: 1.05rem;
+    color: var(--ink);
+    border-left: 3px solid var(--ultramarine);
+    padding: 4px 0 4px 20px;
+    margin: 8px 0 40px;
+  }
+
+  section.block {
+    margin-bottom: 52px;
+  }
+  section.block h2 {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 1.32rem;
+    font-weight: 700;
+    color: var(--h2-color);
+    margin: 0 0 6px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  h3 {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 30px 0 12px;
+  }
+
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 16px; padding-left: 1.4em; }
+  li { margin-bottom: 8px; }
+
+  strong { font-weight: 700; }
+
+  blockquote.ask {
+    margin: 20px 0;
+    padding: 16px 20px;
+    background: var(--quote-bg);
+    border-left: 3px solid var(--ultramarine);
+    border-radius: 0 4px 4px 0;
+    font-style: italic;
+  }
+  blockquote.ask p:last-child { margin-bottom: 0; }
+
+  .hint {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 0.86rem;
+    color: var(--gray);
+  }
+
+  pre {
+    background-color: #000000; /* 設定背景為黑色 */
+    color: #ffffff;            /* 設定預設文字為白色 */
+    padding: 18px 20px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.65;
+    margin: 18px 0;
+  }
+
+  pre code {
+    background: transparent !important;   /* 背景設為透明，直接透出 pre 的黑色 */
+    background-color: transparent !important;
+    color: inherit !important;            /* 繼承 pre 的白色字體 */
+  }
+
+  /* 3. 防止內部的 span（如關鍵字）或每一行被加上白色背景 */
+  pre code * {
+    background: transparent !important;   /* 強制程式碼內所有子元素背景透明 */
+    background-color: transparent !important;
+  }
+
+  p code, li code {
+    background: var(--quote-bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+  pre .kw   { color: var(--code-accent); }
+  pre .type { color: #9ad1c9; }
+  pre .cm   { color: #7a8194; }
+
+  .task-list {
+    counter-reset: task;
+    list-style: none;
+    padding-left: 0;
+  }
+  .task-list > li {
+    counter-increment: task;
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+  }
+  .task-list > li::before {
+    content: counter(task);
+    position: absolute;
+    left: 0;
+    top: -1px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--ultramarine);
+    color: #fff;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 0.92rem;
+  }
+  table.compare th, table.compare td {
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  table.compare th {
+    font-family: "Noto Sans TC", sans-serif;
+    color: var(--ultramarine-deep);
+    font-weight: 700;
+    border-bottom: 2px solid var(--ultramarine);
+  }
+
+  .submission {
+    background: var(--paper-panel);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 24px 26px;
+  }
+  .submission h2 { margin-top: 0; }
+
+  footer {
+    text-align: center;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+    color: var(--gray);
+    font-size: 0.82rem;
+    font-family: "Noto Sans TC", sans-serif;
+  }
+
+  ::selection { background: #cfe0ff; }
+</style>
+</head>
+<body>
+
+<div class="masthead-bar"></div>
+<div class="masthead">
+  <div class="masthead-inner">
+    <p class="school-name sans">應數系計概</p>
+    <p class="school-name-en sans">NYCU AM</p>
+    <h1 class="doc-title sans">程式作業 4</h1>
+    <p class="doc-subtitle">多項式求值：從蠻力到 Horner，從實數到複數</p>
+  </div>
+</div>
+
+<main>
+
+  <p class="lede">我們對於電腦如何用有限的浮點數逼近「數」有些瞭解後，要來問另一個層次的問題：<strong>同一個數學表達式，用不同的「算法」去實現，會不會差很多？</strong> 多項式求值 $P(x) = a_n x^n + a_{n-1}x^{n-1} + \cdots + a_1 x + a_0$ 看似單純，卻是在體現「演算法效率」最乾淨的例子 — 除了涉及運算量分析（Big-$O$）以外，同時與函式設計有所關聯（實數版、複數版），而這正是<strong>泰勒展開式（Taylor's Expansion）把函數拆解成多項式</strong>之後，我們必須要面對的計算問題。</p>
+
+  <section class="block">
+    <h2>第一題：多項式求值 — 實數版</h2>
+
+    <h3>背景說明</h3>
+    <p>給定係數 $a_0, a_1, \dots, a_n \in \mathbb{R}$ 與一點 $x \in \mathbb{R}$，最直覺的求值方式是「逐項算冪次、逐項相乘、最後全部加總」，也就是<strong>傳統求值法</strong>。然而，在計算機科學中，如此的運算，是否會是一種「運算浪費」呢？傳統求值法需要 $n$ 次加法、以及 $\dfrac{n(n+1)}{2}$ 次乘法，即 $O(n^2)$ 運算量。</p>
+    <p><strong>Horner's Method</strong>（<strong>秦九韶算法</strong>）則透過巢狀嵌套改寫多項式：</p>
+    <p>$$P(x) = a_0 + x\big(a_1 + x(a_2 + x(\cdots + x(a_{n-1}+x\,a_n)\cdots))\big)$$</p>
+    <p>如此一來，只需要 $n$ 次加法與 $n$ 次乘法就能求出同樣的值。同樣的數學表達式，換了另一種運算順序，就換了另一個等級的效率，$O(n)$ 運算量。</p>
+
+    <h3>任務要求</h3>
+    <ol class="task-list">
+      <li>利用 C++ 程式語言<strong>實作傳統求值法</strong>
+        <ul>
+          <li>輸入 係數陣列 <code>a[0],...,a[n]</code> 與 $x$，直接以 <code>std::pow(x, k)</code> 或 設計迴圈累乘計算每一項 $a_k x^k$，再加總。</li>
+        </ul>
+      </li>
+
+      <li>利用 C++ 程式語言<strong>實作 Horner 法</strong>
+        <ul>
+          <li>由最高次項係數 <code>a[n]</code> 開始，反覆執行 <code>result = result * x + a[k]</code>。</li>
+        </ul>
+      </li>
+
+      <li>
+        <strong>正確性 與 一致性 驗證</strong>
+        <ul>
+          <li>假設已知 $\displaystyle \sin x = \sum_{n=0}^{\infty} (-1)^{n} \frac{x^{2n+1}}{(2n+1)!}$ 和 $\displaystyle \cos x = \sum_{n=0}^{\infty} (-1)^{n}\frac{x^{2n}}{(2n)!}$，即 $\sin x$ 與 $\cos x$ 可以等於 無窮多項之多項式，此 型式稱為 冪級數 (power series)。</li>
+          <li>以 前$n$項和 的方式來看 此 無窮多項和，即
+$\displaystyle \sin x = \lim_{n\to\infty}\sum_{k=0}^{n} (-1)^{k} \frac{x^{2k+1}}{(2k+1)!} =\lim_{n\to\infty} S_n$ 和 $\displaystyle \cos x = \lim_{n\to\infty}\sum_{k=0}^{n} (-1)^{k}\frac{x^{2k}}{(2k)!} = \lim_{n\to\infty} C_n$，當中的
+$$S_n= \sum_{k=0}^{n} (-1)^{k} \frac{x^{2k+1}}{(2k+1)!},\quad  C_n= \sum_{k=0}^{n} (-1)^{k}\frac{x^{2k}}{(2k)!} $$</li>
+          <li>比較兩種函式 - 傳統 與 Horner，計算 $\sin(\frac{\pi}{4})$ 與 $\cos(\frac{\pi}{4})$，輸出 $n=1,2,\ldots,8$。</li>
+<!--
+一致性 驗證 是 針對 這兩個 計算方法的比較；
+正確性 驗證 是需 與其「參考值」$\sin(\frac{\pi}{4})$ 與 $\cos(\frac{\pi}{4})$ 作對照 來凸顯 計算方法的精確性
+-->
+        </ul>
+        <div class="hint">提示：
+          <ul>
+            <li>兩者理論上是同一個數學式；但在實際計算執行上，加減乘的順序有所不同，浮點誤差不盡相同！</li>
+            <li>在此 Horner 的計算上，係數的產生也可以考量成巢狀嵌套，而非各項獨自計算。</li>
+           </ul>
+        </div>
+      </li>
+
+      <li><strong>浮點捨入誤差累積</strong><ul>
+        <li>給定 $\displaystyle P(x) = \sum_{k=0}^{n} C_k^n x^{n-k} (-1)^k,\,\, n\in \mathbb{N}$</li>
+<!--
+(x-1)^n 的展開式
+-->
+<li>比較兩種函式 - 傳統 與 Horner，計算 $P(1.1)$ 與 $P(1.01)$，輸出 $n=1,2,\ldots,20$。</li>
+        </ul>
+        <div class="hint">提問：
+Horner 法，除了省下乘法次數，是否也連帶減少了浮點捨入誤差的累積機會呢？為什麼「越少次浮點運算」通常也意味著「誤差越小」呢？        </div>
+       </li>
+
+    </ol>
+
+    <h3>問題延伸</h3>
+    <ul class="task-list">
+
+      <li>
+        <strong>效率量測</strong>
+<p>檢視執行 傳統求值法 與 Horner 法 負載差異，並與 理論運算（$n$ 次乘法 對 $\dfrac{n(n+1)}{2}$ 次乘法）作對照比較。</p>
+
+        <p class="hint">提示：評估負載，使用 <code>&lt;chrono&gt;</code> 量測執行時間差</p>
+
+<!--
+      elapsed_time.cpp
+-->
+      </li>
+
+
+      <li>如果 $x$ 的絕對值很大（例如： $|x| \gg 1$），傳統求值法中 <code>std::pow(x, n)</code> 這一項是否可能先發生溢位（overflow），而 Horner 法卻不會？試著設計例子作展示。</li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>第二題：多項式求值 — 複數版</h2>
+
+    <h3>背景說明</h3>
+    <p>當係數 $a_0, a_1, \dots, a_n$ 與 $x$ 是 複數時，同一套 Horner 演算法 依然適用：演算法的步驟完全不需要改變，改變的只是「數的型別」。這正是範本（template）的精神 — 演算法 只要求 型別具備哪些運算，並不在乎 該型別運算的實作。</p>
+<!--
+這正是範本（template）的精神 — 演算法 只要求 型別有「支援」$+$ 與 $\times$，並不在乎 這些運算在該型別中具體是怎麼實作的。
+
+然而 是 "演算法" 「不在乎實作」，是它「不負責實作」；並不是 不需要在 程式碼中 將那些 自訂型別的運算 進行實作。
+-->
+
+<p>再者，多項式是「解析函數」的表達核心，因此，有效率地進行多項式求值是關鍵的工程。
+<!--
+多項式 是 最單純的 解析函數；而解析函數在局部上可以展開成冪級數(無窮維的多項式)。因此，「多項式在複數點上要怎麼算」，正是計算複數值解析函數的基礎。
+
+這正呼應了解析函數的精神 — 複數上的可微性比實數更「整齊」，複多項式本身就是最基本的解析函數之一。
+-->
+</p>
+
+    <h3>任務要求</h3>
+    <ol class="task-list">
+      <li>用 Horner 演算法 實作 複數多項式求值，$\displaystyle P(z) = a_n z^n + \cdots + a_0 =  \sum_{k=0}^{n} a_k z^{k}$，其中 $a_k \in \mathbb{C}$ 且 $z\in \mathbb{C}$。</li>
+
+      <li>C++ 標準函式庫中，雖然已提供 <code>&lt;complex&gt;</code>，但本題 <strong>限制不得使用</strong> 複數函式庫呼叫。</li>
+
+      <li>建議自定 複數型別 並以 <strong>範本（template）</strong> 來實作：
+        <ul>
+          <li>以 <code>struct</code>（或 <code>class</code>）儲存實部 <code>re</code> 與虛部 <code>im</code>，並提供建構子，使得 <code>double</code> 可以隱含轉換成 <code>Complex</code>（虛部為 0）。</li>
+          <li>重載運算子 <code>+</code>、<code>-</code>、<code>*</code>、<code>/</code>，另外設計 共軛 <code>conj(z)</code> 與 模長 <code>abs_c(z)</code>。</li>
+
+        <pre><code><span class="kw">struct</span> Complex {
+    <span class="kw">double</span> re, im;
+    Complex(<span class="kw">double</span> r = 0.0, <span class="kw">double</span> i = 0.0) : re(r), im(i) {}
+};
+
+Complex <span class="kw">operator</span>*(<span class="kw">const</span> Complex&amp; a, <span class="kw">const</span> Complex&amp; b) {
+    <span class="kw">return</span> Complex(a.re * b.re - a.im * b.im,
+                   a.re * b.im + a.im * b.re);   <span class="cm">// (a+bi)(c+di) = (ac-bd) + (ad+bc)i</span>
+}</code></pre>
+
+      <li> 以 <strong>範本（template）</strong>改寫第一題的 Horner 函式，使其能同時接受 <code>double</code> 與<strong> 自定的</strong> <code>Complex</code> 兩種型別：
+        
+        <pre><code><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+T horner(<span class="kw">const</span> std::vector&lt;T&gt;&amp; a, T x) {
+    T result = a.back();
+    <span class="kw">for</span> (<span class="kw">int</span> k = (<span class="kw">int</span>)a.size() - 2; k &gt;= 0; --k)
+        result = result * x + a[k];
+    <span class="kw">return</span> result;
+}</code></pre>
+        <p class="hint">提示：只要 <code>Complex</code> 有 重載 <code>+</code>、<code>*</code>，這 範本程式碼 不需要任何修改就能套用在複數上 — 範本只要求「型別 T 支援這些運算」，並不在乎 運算的實作 是什麼。</p>
+      </li>
+
+      </ul></li>
+
+      <li>
+        <strong>正確性 驗證</strong>
+        <ul>
+          <li>假設已知 $\displaystyle e^{z} = \sum_{n=0}^{\infty} \frac{z^n}{n!} =\lim_{n\to\infty} E_n$，當中的 $\displaystyle E_n= \sum_{k=0}^{n} \frac{z^{k}}{k!}$。</li>
+
+          <li>計算 $e^{1+\frac{\pi}{4}i}$，輸出 $n=1,2,\ldots,20$。</li>
+        </ul>
+<!--
+        <div class="hint">提示：誤差的參考值可由 Euler 公式 $e^{1+i\theta} = e\,(\cos\theta + i\sin\theta)$ 得到（$\theta$ 同樣取 <code>double</code> 的 $\pi/4$，並以 <code>long double</code> 計算），恰與第一題的 $\sin(\pi/4)$、$\cos(\pi/4)$ 相呼應。</div>
+
+僅作 正確性 驗證，與其「參考值」作對照 來凸顯 計算方法的精確性；
+沒有要 看 一致性 驗證(在 第一題 已經有作了，這個 一致性 的 關鍵 是來自 數學上的 收斂)
+-->
+
+      </li>
+    </ol>
+
+    <h3>問題延伸</h3>
+    <ul class="task-list">
+      <li>如果係數 $a_k$ 全部是實數，但輸入的 $x$ 是複數，函式是否還能直接運作？需要對範本或型別做什麼調整（例如：係數陣列型別與 $x$ 型別不一致時）？
+        <p class="hint">提示： <code>Complex</code> 允許由 <code>double</code> 隱含轉換，但 範本 在「推導型別」時並不會 做轉換 — 試著編譯看看，觀察錯誤訊息。</p>
+      </li>
+<!--
+      <li><strong>以範本版 <code>horner</code> 實際觀察「複可微」</strong>：取 $P(z)=z^3-z+2i$ 與 $z_0=1+i$，令 $h$ 為很小的複數（例如長度 $10^{-6}$），分別沿<strong>實軸、虛軸、45° 方向</strong>趨近 $0$，計算差商 $\dfrac{P(z_0+h)-P(z_0)}{h}$。三個方向的結果是否一致？是否逼近 $P'(z_0)=3z_0^2-1$？再對 $f(z)=\overline{z}$（共軛）做同樣的實驗，結果有何不同？
+        <p class="hint">提示：差商中的除法需要你的 <code>Complex</code> 重載 <code>/</code>；$P(z_0+h)$ 與 $P(z_0)$ 都直接呼叫同一份 <code>horner</code> 範本。「極限與趨近方向無關」正是複可微（Holomorphic）的核心。</p>
+      </li>
+-->
+      <li>對於 實變函數 而言，可微分 並不代表是 可「解析」；然而，對於 複變函數 而言，若在某個開集上 複可微，即代表是 可解析 並稱為「全純函數」（Holomorphic Function）<ul>
+      <li>解析函數 (Analytic Function)：若函數 $f(z)$ 在 $z_0$ 的某個鄰域內，可以表示為一個 絕對收斂的冪級數（泰勒級數）
+$$ f(z) = \sum_{n=0}^{\infty} a_n (z - z_0)^n = a_0 + a_1(z-z_0) + a_2(z-z_0)^2 + \cdots = \lim_{n\to\infty} \sum_{k=0}^{n}  a_k(z-z_0)^k$$  </li>
+</ul></li>
+
+<!--
+*「全純函數」：在某個**開集**（每一點周圍都有一小圈鄰域）上每一點都複可微。
+
+只在一個點可微，不能推出可展開成冪級數。經典的反例是 $f(z)=|z|^2 = x^2+y^2$：
+
+- 它在 $z=0$ 這一點是複可微的，導數為 $0$。
+- 但在 $z\neq0$ 的任何點，都不是複可微（Cauchy–Riemann 方程式只在原點成立）。
+- 所以它在任何一個鄰域內都不是處處可微，當然也不能展開成冪級數，不是解析函數。
+
+*複可微 指的是 差商
+
+$$\lim_{h\to 0}\frac{f(z_0+h)-f(z_0)}{h}$$ 存在，
+而且 $h$ 是**複數**，可以從任何方向趨近 $0$，結果都要一樣。
+
+*「複可微」要和「實可微」區分
+
+這比「實部與虛部各自可微」強得多！
+
+*複數域上的函數 具有 複可微分，就可以如何呢? Horner 法 說明了 多項式求值 的什麼性質？兩者一個屬於「函數的數學結構」，一個屬於「計算的演算法效率」，並不是同一個層次的問題。
+
+然而，這兩件事 是會接上 的！！！
+
+呼應 "多項式是「解析函數」的表達核心，因此，有效率地進行多項式求值是關鍵的工程。"
+
+      math_analytic_holomorphic.html
+
+為何 只看 (實數、複數)多項式 的 求值問題 呢?
+
+其他的 實變函數、複變函數 的 求值問題 呢?
+-->
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>附帶主題：運算量計算（Big-$O$ 分析）</h2>
+
+    <h3>背景說明</h3>
+    <p>大 $O$ 符號量測的不是「答案對不對」，而是「達到答案要花多少代價」。第一題已經看到：同一個數學式，傳統求值法是 $O(n^2)$（更精確地說是 $\dfrac{n(n+1)}{2}$ 次乘法），Horner 法是 $O(n)$。所謂 $f(x)$ 是 $O(g(x))$ 或 $ f(x)=O(g(x))$，即 存在 $M>0$ 和 $x_0 \in \mathbb{R}$ 使得 $|f(x)| \leq  M |g(x)|$ 對於所有的 $x \geq x_0$。</p>
+
+    <table class="compare">
+      <tr>
+        <th>方法</th>
+        <th>乘法次數</th>
+        <th>加法次數</th>
+        <th>時間複雜度</th>
+      </tr>
+      <tr>
+        <td>傳統求值法</td>
+        <td>$\dfrac{n(n+1)}{2}$</td>
+        <td>$n$</td>
+        <td>$O(n^2)$</td>
+      </tr>
+      <tr>
+        <td>Horner 法</td>
+        <td>$n$</td>
+        <td>$n$</td>
+        <td>$O(n)$</td>
+      </tr>
+    </table>
+
+<p class="hint">註記： 如 傳統求值法 的 乘法次數 是 $f(n) = \frac{n(n+1)}{2}$，則 $f(n) = O(n^2)$，即 $|f(n)| \leq  M |g(n)|$ with $M=1$, $g(n)=n^2$, $n \geq n_0$, and $n_0=1$。</p>
+
+    <h3>任務要求</h3>
+    <ol class="task-list">
+      <li>
+        <strong>在程式中實際「數」運算次數</strong>，而不只是理論推導：在傳統求值法與 Horner 法的函式內部，分別放置一個計數器（乘法計數器、加法計數器），對不同的 $n$（例如：$n = 10, 100, 1000, 10000$）各執行一次，把實際計數的結果列成表格。
+      </li>
+      <li>
+        <strong>驗證與理論公式吻合</strong>：把第 1 點的實測次數，對照 $\dfrac{n(n+1)}{2}$ 與 $n$ 這兩條公式，確認是否完全吻合。
+      </li>
+      <li>
+        <strong>觀察「$n$ 翻倍」的代價</strong>：分別計算 $n$ 與 $2n$ 時，傳統求值法與 Horner 法各自的乘法次數，驗證傳統求值法的運算量大約變成 4 倍（$O(n^2)$），而 Horner 法只變成 2 倍（$O(n)$）。
+      </li>
+    </ol>
+
+    <h3>問題延伸</h3>
+    <ul class="task-list">
+      <li>已知解線性方程組（如：高斯消去法）的運算量是 $O(n^3)$，也就是 $n$ 翻倍時運算量會噴發到 8 倍。試著把「多項式求值」與「解線性方程組」這兩個問題的複雜度等級（$O(n)$ 對 $O(n^3)$）放在同一張表格上比較，並說明：為什麼即使兩者都叫「$n$」，代表的意義（多項式次數 vs. 矩陣維度）不同，成長速度卻可以差這麼多？</li>
+      <li>如果一個演算法的複雜度是 $O(n \log n)$（例如：某些 多項式乘法 或 快速傅立葉轉換 的做法），它的成長速度會落在 $O(n)$ 的 Horner 法與 $O(n^2)$ 的傳統求值法之間嗎？畫出（或用程式算出）三條曲線隨 $n$ 增長的比較，感受三者的差距。</li>
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-content">© NYCU 應用數學系 計算機概論</div>
+</footer>
+
+</body>
+</html>
+
+<!--
+整份作業在表達什麼
+
+**引言**
+1. 同一個數學式用不同算法實現，差別可以很大；多項式求值是體現「演算法效率」最乾淨的例子。
+2. 它同時牽涉運算量分析（Big-$O$）與函式設計（實數版、複數版）。
+3. 這些問題的來源是：泰勒展開把函數拆成多項式之後，我們必須面對怎麼算。
+
+**第一題：實數版**
+1. 傳統求值法需要 $n$ 次加法與 $\frac{n(n+1)}{2}$ 次乘法，是 $O(n^2)$；Horner 法（秦九韶算法）只需 $n$ 次乘法與 $n$ 次加法，是 $O(n)$。
+2. 任務 1、2：實作兩種算法。
+3. 任務 3：用 $\sin x$、$\cos x$ 的冪級數部分和 $S_n$、$C_n$，在 $x=\pi/4$ 比較兩種算法，$n=1\ldots8$。核心概念是「無窮級數用前 $n$ 項逼近」，而 Horner 的係數可以巢狀地邊走邊產生。
+4. 任務 4：用 $(x-1)^n$ 的展開式，觀察浮點捨入誤差的累積。
+5. 延伸：量測效率，以及 $|x|\gg1$ 時 `pow` 溢位而 Horner 不溢位。
+
+**第二題：複數版**
+1. 同一套 Horner 演算法對複數也適用，改變的只是型別；這是範本的精神：演算法只要求型別具備哪些運算，不在乎運算的實作。
+2. 任務：禁用 `<complex>`、自設 `Complex`、寫範本 `horner<T>`、用 $e^{z}$ 的級數驗證 $e^{1+\frac{\pi}{4}i}$。
+3. 延伸 1：實係數搭配複數 $x$，範本型別推導不會做隱含轉換。
+4. 延伸 2：實變與複變的差異，也就是全純函數與解析函數的關係。
+
+**附帶主題：Big-$O$**
+1. 給出 $O$ 的定義，以及 $\frac{n(n+1)}{2}=O(n^2)$ 的例子（$M=1$、$n_0=1$，經驗證成立）。
+2. 任務：實際計數運算次數、對照公式、觀察 $n$ 翻倍的代價（約 4 倍對 2 倍）。
+3. 延伸：與 $O(n^3)$ 的線性系統比較，再比較 $O(n\log n)$。
+-->
