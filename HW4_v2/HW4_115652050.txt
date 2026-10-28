@@ -231,6 +231,32 @@ Power of exponatial e^z, z=1 + (pi/4)i, n=1~20.
 範本讓演算法與資料型別脫鉤，只要資料型別支援必要的運算子，同一套 Horner 演算法就能無縫接軌到複數運算上。
 在實作運算子重載與輸入串流解析時，也補足了許多底層機制的知識本程式為獨立完成並參考 C++ 標準庫的實作邏輯進行改良。
 
+延伸問題:
+    1-1.測試程式碼請見https://github.com/CharlesHsu-noob/CPP_practice/blob/main/HW4/CalculateAvgCostTime.cpp
+    在我自己的電腦上跑輸出為
+    Normal way:
+    Total cost time: 19606741800 ns
+    Avg cost time: 19.6067 ns
+
+    Honor way:
+    Total cost time: 11422829800 ns
+    Avg cost time: 11.4228 ns
+
+    (Verification: Both methods produce the same result)
+    可見honor法在計算量很大時比傳統方法耗時少
+
+    1-2.
+    (1) 傳統求值法：
+    在傳統求值法中，計算a_n * x^n時需要單獨計算std::pow(x, n)。
+    若取x = 10^5、n = 70，計算std::pow(10^5, 70) = 10^350，該數值超過了雙精度浮點數double的上限（約 1.79 x 10^308）
+    中間過程會產生溢位，導致最終計算結果直接爆掉。
+    (2) Horner 法的優勢：
+    Horner 法將計算改寫為 (...((a_n * x + a_{n-1}) * x + a_{n-2})...)。
+    若最高次項係數 a_n 非常小（例如 a_n = 10^-50），Horner 法在第一步計算 (10^-50 * 10^5) = 10^-45，數值會先被微小的係數壓低，中間過程不會提前產生高達 10^350 的中間數值，有效延緩甚至避免中間步驟發生浮點數溢位。
+
+    2-1.可以。只要限制傳入的參數樣式寫成complex<T> &Z,T &R就可以避免, 或者把兩個變數都強制寫成複數形comolex<T> &a, complex<T> &b,讓編譯器自動把第2個實數轉換為(b,0)的複數型態進行運算。
+
+
 ＊AI用於生成測資,解釋編譯器錯誤的意思以及解釋標準庫源碼的寫法用途。
 
 參考資料:
