@@ -1,10 +1,10 @@
 #include <cmath>
+#include <cstdlib>
 #include <iostream>
 #include <string>
 #include <sstream>
 #include <iomanip>
 #include <vector>
-#include <complex>
 #include <x86intrin.h>
 using namespace std;
 
@@ -19,23 +19,209 @@ template <typename T> struct complex {
 	}
 
 	//operator
-	friend complex<T> operator*(const complex<T> &a, const complex<T> &b)
+	//addition
+	complex<T> operator+=(const complex<T> &other)
 	{
-		return complex<T>(a.real * b.real - a.imag * b.imag,
-				  a.real * b.imag + a.imag * b.real);
+		this->real += other.real;
+		this->imag += other.imag;
+		return *this;
 	}
-	//for complex * real
-	friend complex<T> operator*(const complex<T> &z, const T &other)
+	complex<T> operator+=(const T &other)
 	{
-		return complex<T>(z.real * other, z.imag * other);
+		this->real += other;
+		return *this;
 	}
-	friend complex<T> operator+(const complex<T> &a, const complex<T> &b)
+	friend complex<T> operator+(const complex<T> x, const complex<T> &y)
 	{
-		return complex<T>(a.real + b.real, a.imag + b.imag);
+		complex<T> r = x;
+		r += y;
+		return r;
 	}
-	friend complex<T> operator-(const complex<T> &a, const complex<T> &b)
+	friend complex<T> operator+(const complex<T> x, const T &y)
 	{
-		return complex<T>(a.real - b.real, a.imag - b.imag);
+		complex<T> r = x;
+		r += y;
+		return r;
+	}
+	friend complex<T> operator+(const T &x, const complex<T> &y)
+	{
+		complex<T> r = y;
+		r += x;
+		return r;
+	}
+	//substraction
+	complex<T> operator-=(const complex<T> &other)
+	{
+		this->real -= other.real;
+		this->imag -= other.imag;
+		return *this;
+	}
+	complex<T> operator-=(const T &other)
+	{
+		this->real -= other;
+		return *this;
+	}
+	friend complex<T> operator-(const complex<T> x, const complex<T> &y)
+	{
+		complex<T> r = x;
+		r -= y;
+		return r;
+	}
+	friend complex<T> operator-(const complex<T> x, const T &y)
+	{
+		complex<T> r = x;
+		r -= y;
+		return r;
+	}
+	friend complex<T> operator-(const T &x, const complex<T> &y)
+	{
+		complex<T> r = y;
+		r -= x;
+		return r;
+	}
+	//multiplication
+	complex<T> operator*=(const complex<T> &other)
+	{
+		const T org_real = this->real;
+		const T org_imag = this->imag;
+		this->real = org_real * other.real - org_imag * other.imag;
+		this->imag = org_real * other.imag + org_imag * other.real;
+		return *this;
+	}
+	complex<T> operator*=(const T &other)
+	{
+		this->real *= other;
+		this->imag *= other;
+		return *this;
+	}
+	friend complex<T> operator*(const complex<T> x, const complex<T> &y)
+	{
+		complex<T> r = x;
+		r *= y;
+		return r;
+	}
+	friend complex<T> operator*(const complex<T> x, const T &y)
+	{
+		complex<T> r = x;
+		r *= y;
+		return r;
+	}
+	friend complex<T> operator*(const T &x, const complex<T> &y)
+	{
+		complex<T> r = y;
+		r *= x;
+		return r;
+	}
+	//division
+	complex<T> operator/=(const complex<T> &other)
+	{
+		const T n = (other.real * other.real) + (other.imag * other.imag);
+		const T r = (this->real * other.real) + (this->imag * other.imag);
+		const T i = (this->imag * other.real) - (this->real * other.imag);
+		this->real = r / n;
+		this->imag = i / n;
+		return *this;
+	}
+	complex<T> operator/=(const T &other)
+	{
+		this->real /= other;
+		this->imag /= other;
+		return *this;
+	}
+	friend complex<T> operator/(const complex<T> x, const complex<T> &y)
+	{
+		complex<T> r = x;
+		r /= y;
+		return r;
+	}
+	friend complex<T> operator/(const complex<T> x, const T &y)
+	{
+		complex<T> r = x;
+		r /= y;
+		return r;
+	}
+	friend complex<T> operator/(const T &x, const complex<T> &y)
+	{
+		complex<T> r = x;
+		r /= y;
+		return r;
+	}
+	//os stream
+	//output <<
+	template <typename _CharT, typename _Traits>
+	friend basic_ostream<_CharT, _Traits> &operator<<(basic_ostream<_CharT, _Traits> &__os,
+							  const complex<T> &__x)
+	{
+		basic_ostringstream<_CharT, _Traits> __s;
+		__s.flags(__os.flags());
+		__s.imbue(__os.getloc());
+		__s.precision(__os.precision());
+		__s << '(' << __x.real << ',' << __x.imag << ')';
+		return __os << __s.str();
+	}
+
+	//input >>
+	friend std::istream &operator>>(std::istream &is, complex<T> &z)
+	{
+		T u = 0, v = 0;
+		char ch = 0;
+		bool fail = true;
+
+		if (is >> ch) {
+			if (ch == '(') {
+				//(a,b) 或 (a)
+				if (is >> u >> ch) {
+					if (ch == ')') {
+						//(a)
+						z = complex<T>(u, 0);
+						fail = false;
+					} else if (ch == ',') {
+						//(a,b)
+						if (is >> v >> ch) {
+							if (ch == ')') {
+								z = complex<T>(u, v);
+								fail = false;
+							} else {
+								is.putback(ch); // 字元不是 ')'
+							}
+						}
+					} else {
+						is.putback(ch);
+					}
+				}
+			} else {
+				//a
+				is.putback(ch); //把剛才讀到的第一個非 ( 字元吐回串流
+				if (is >> u) {
+					z = complex<T>(u, 0);
+					fail = false;
+				}
+			}
+		}
+
+		if (fail) {
+			is.setstate(std::ios_base::failbit);
+		}
+
+		return is;
+	}
+	//function
+	complex<T> conj() const
+	{
+		return complex<T>(this->real, -1 * this->imag);
+	}
+	//reference /usr/include/c++/16/complex.hpp
+	T abs() const
+	{
+		T x = this->real;
+		T y = this->imag;
+		const T scalar = std::max(std::abs(x), std::abs(y));
+		if (scalar == T()) { //通用的初始化值
+			return scalar;
+		}
+		x /= scalar;
+		y /= scalar;
+		return scalar * sqrt(x * x + y * y);
 	}
 };
 
@@ -182,6 +368,17 @@ template <typename T> T honorWayPolynomial(const vector<T> coff, const T x)
 	return ans;
 }
 
+complex<double> expComplex(const complex<double> &z, int n)
+{
+	complex<double> ans = { 1, 0 };
+	complex<double> temp = { 1, 0 };
+	for (int i = 1; i < n + 1; i++) {
+		temp *= z / (i * 1.0);
+		ans += temp;
+	}
+	return ans;
+}
+
 template <typename T> bool isTwoValueSame(const T a, const T b)
 {
 	return a == b;
@@ -224,7 +421,7 @@ void complexPolynomial()
 	complex<double> x;
 	cin >> x;
 	complex<double> ans = honorWayPolynomial(coff, x);
-	cout << "Result= " << ans.real() << " + " << ans.imag() << " i" << endl;
+	cout << "Result= " << ans.real << " + " << ans.imag << " i" << endl;
 }
 
 void compareTwoWaysWithTaylorExpasion()
@@ -282,7 +479,17 @@ void expansionOfBinaryTheorom()
 	cout << endl;
 }
 
-int main()
+void powerOfExponatial()
+{
+	cout << "Power of exponatial e^z, z=1 + (pi/4)i, n=1~20." << endl;
+	complex<double> z = { 1, M_PI / 4.0 };
+	for (int i = 1; i < 21; i++) {
+		cout << setw(10) << expComplex(z, i) << endl;
+	}
+	cout << endl;
+}
+
+void polynomialCalculater()
 {
 	cout << "Choose the domain of x." << endl;
 	cout << "1. Real number\n2. Complex number" << endl;
@@ -302,7 +509,13 @@ int main()
 		break;
 	}
 	}
+}
+
+int main()
+{
+	polynomialCalculater();
 	compareTwoWaysWithTaylorExpasion();
 	expansionOfBinaryTheorom();
+	powerOfExponatial();
 	return 0;
 }
