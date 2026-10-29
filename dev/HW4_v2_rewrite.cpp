@@ -1,7 +1,7 @@
 #include <cmath>
 #include <iostream>
 #include <iomanip>
-#include <x86intrin.h>
+//#include <x86intrin.h>
 #include "my_vector.hpp"
 #include "my_complex.h"
 using namespace xdd;

@@ -3,39 +3,53 @@
 
 using namespace std;
 
-void GE(xdd::matrix<double> &A, xdd::matrix<int> &P)
+//return free column's posision
+xdd::vector<int> GE(xdd::matrix<double> &A, xdd::matrix<int> &P)
 {
 	/*CR分解不需要row change*/
 	int row, col;
 	row = A.size;
 	col = A[0].size;
+	xdd::vector<int> freeCol;
+	int freeColCount = 0;
 	int GE_level;
 	if (row < col) {
 		GE_level = row;
 	} else {
 		GE_level = col;
 	}
-	bool nonElimination;
+
 	for (int i = 0; i < GE_level; i++) {
-		nonElimination = false;
-		double pivot = A[i][i];
-		int count = i;
+		//每一個col都從 [當前row-已經有的free col數] 開始找
+		int currentRow = i - freeColCount;
+		if (currentRow > row) {
+			break;
+		}
+		double pivot = A[currentRow][i];
+		//cout << "pivot=A[" << currentRow << "][" << i << "]" << endl;
+		int count = currentRow;
 		while (pivot == 0 && (count + 1) < row) {
 			count++;
 			pivot = A[count][i];
 		}
 
-		if (count == row) {
-			nonElimination = true;
+		if (pivot == 0) {
+			//cout << "column " << i << " is free column, pass." << endl;
+			freeCol.push_back(i);
+			freeColCount++;
 			continue;
 		} // 如果這個col全部都是0那就直接換下一個col作消去
 
-		if (count != i) { // 代表要作row change
-			swap(A[i], A[count]);
-			swap(P[i], P[count]);
+		//cout << "count:" << count << ", row:" << row << endl;
+		//cout << "pivot of column " << i << " is " << pivot << endl;
+		//pivotColCount++; //如果這個col有得消去代表下一次迴圈要從下一個col開始找
+
+		if (count != currentRow) { // 代表要作row change
+			swap(A[currentRow], A[count]);
+			swap(P[currentRow], P[count]);
 		}
 
-		for (int j = i + 1 /*當前的row不用作消去*/; j < row; j++) {
+		for (int j = currentRow + 1 /*當前的row不用作消去*/; j < row; j++) {
 			double elim = A[j][i];
 			// 這一個row的所有元素都會用到這個元素，但這個元素在地一個迴圈就會被消去，所以要額外寫一個變數保留他
 			// 即row_j -= row_pivot * {row_j第一個非0元素}/pivot
@@ -45,46 +59,70 @@ void GE(xdd::matrix<double> &A, xdd::matrix<int> &P)
 			}
 			for (int k = i + 1 /*因為A[j][i]最後一定會變成0,所以直接從下一個開始*/;
 			     k < col; k++) {
-				double coff =
-					A[i][k] * multiplier; // 當pivot那一row對應col的元素*倍率
+				// 當pivot那一row對應col的元素*倍率
+				double coff = A[currentRow][k] * multiplier;
 				A[j][k] = A[j][k] - coff;
 			}
 			A[j][i] = 0.0; //手動賦值
+			//xdd::printMatrix(A);
+			//cout << endl;
 		}
 	}
+	return freeCol;
 }
 
-xdd::vector<pair<int, int> > backGE(xdd::matrix<double> &A, xdd::matrix<int> &P)
+void backGE(xdd::matrix<double> &A, xdd::matrix<int> &P, xdd::vector<int> &freeCol)
 {
-	xdd::vector<pair<int, int> > pivotCol;
+	/*CR分解不需要row change*/
 	int row, col;
-	pair<int, int> pos;
 	row = A.size;
 	col = A[0].size;
+	int freeColCount = 0;
 	int GE_level;
 	if (row < col) {
 		GE_level = row;
 	} else {
 		GE_level = col;
 	}
-	for (int i = GE_level - 1; i > (-1); i--) {
-		double pivot = A[i][i];
-		int count = i;
-		while (pivot == 0 && count > (-1)) {
-			count--;
+
+	xdd::vector<int> pivotCol(col, 0);
+	for (int i = 0; i < col; i++) {
+		pivotCol[i] = i;
+	}
+
+	xdd::removeBlacklist(pivotCol, freeCol);
+
+	for (int i = GE_level; i > (-1); i++) {
+		//每一個col都從 [當前row-已經有的free col數] 開始找
+		int currentRow = i - freeColCount;
+		if (currentRow > row) {
+			break;
+		}
+		double pivot = A[currentRow][i];
+		//cout << "pivot=A[" << currentRow << "][" << i << "]" << endl;
+		int count = currentRow;
+		while (pivot == 0 && (count + 1) < row) {
+			count++;
 			pivot = A[count][i];
 		}
 
-		if (count == 0) {
+		if (pivot == 0) {
+			//cout << "column " << i << " is free column, pass." << endl;
+			freeCol.push_back(i);
+			freeColCount++;
 			continue;
 		} // 如果這個col全部都是0那就直接換下一個col作消去
 
-		if (count != i) { // 代表要作row change
-			swap(A[i], A[count]);
-			swap(P[i], P[count]);
+		//cout << "count:" << count << ", row:" << row << endl;
+		//cout << "pivot of column " << i << " is " << pivot << endl;
+		//pivotColCount++; //如果這個col有得消去代表下一次迴圈要從下一個col開始找
+
+		if (count != currentRow) { // 代表要作row change
+			swap(A[currentRow], A[count]);
+			swap(P[currentRow], P[count]);
 		}
 
-		for (int j = i - 1 /*當前的row不用作消去*/; j > (-1); j--) {
+		for (int j = currentRow + 1 /*當前的row不用作消去*/; j < row; j++) {
 			double elim = A[j][i];
 			// 這一個row的所有元素都會用到這個元素，但這個元素在地一個迴圈就會被消去，所以要額外寫一個變數保留他
 			// 即row_j -= row_pivot * {row_j第一個非0元素}/pivot
@@ -94,31 +132,13 @@ xdd::vector<pair<int, int> > backGE(xdd::matrix<double> &A, xdd::matrix<int> &P)
 			}
 			for (int k = i + 1 /*因為A[j][i]最後一定會變成0,所以直接從下一個開始*/;
 			     k < col; k++) {
-				double coff =
-					A[i][k] * multiplier; // 當pivot那一row對應col的元素*倍率
+				// 當pivot那一row對應col的元素*倍率
+				double coff = A[currentRow][k] * multiplier;
 				A[j][k] = A[j][k] - coff;
 			}
 			A[j][i] = 0.0; //手動賦值
-			xdd::printMatrix(A);
-		}
-		pos.first = count;
-		pos.second = i;
-		pivotCol.push_back(pos);
-	}
-	return pivotCol;
-}
-
-void rref(xdd::matrix<double> &M, xdd::vector<pair<int, int> > pivotCol)
-{
-	int numOfPivot = pivotCol.size;
-	int col = M[0].size;
-	int pivot_row = 0;
-	int pivot_col = 0;
-	double pivot = 0;
-	for (int i = 0; i < numOfPivot; i++) {
-		pivot = M[pivot_row][pivot_col];
-		for (int j = pivot_col; j < col; j++) {
-			M[i][j] /= M[pivot_row][pivot_col];
+			//xdd::printMatrix(A);
+			//cout << endl;
 		}
 	}
 }
@@ -137,19 +157,8 @@ void CR_decompose()
 	for (int i = 0; i < row; i++) {
 		P[i][i] = 1;
 	}
-
-	GE(A, P);
-	xdd::printMatrix(A);
-	xdd::vector<pair<int, int> > pivotCol;
-	/*pivotCol裡面紀錄的方式:第n個元素代表第n個pivot在哪一個row,col
-         * e.g. pivotCol=[<1,1>,<3,4>,<5,5>]
-         * 代表pivot在(1,1),(3,4),(5,5)
-         * col2 是free col*/
-	pivotCol = backGE(A, P);
-	//xdd::printMatrix(A);
-
-	//rref(A, pivotCol);
-	//xdd::printMatrix(A);
+	xdd::vector<int> freeCol;
+	freeCol = GE(A, P);
 }
 
 int main()

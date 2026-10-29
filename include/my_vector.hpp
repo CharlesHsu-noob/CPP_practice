@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <algorithm>
 
 namespace xdd
 {
@@ -161,6 +162,34 @@ template <typename T> struct vector {
 	{
 		size = 0;
 	}
+
+	// ---- 迭代器定義與函式 ----
+
+	// 定義迭代器別名，這讓外部能使用 xdd::vector<T>::iterator
+	using iterator = T *;
+	using const_iterator = const T *;
+
+	// 1. 非 const 版本：允許透過迭代器修改裡面的值（例如：*v.begin() = 10;）
+	iterator begin() noexcept
+	{
+		return data; // 指向第一個元素 data[0] 的記憶體位置
+	}
+
+	iterator end() noexcept
+	{
+		return data + size; // 指向最後一個元素的下一個位置（Past-the-end）
+	}
+
+	// 2. const 版本：當 vector 物件是 const 時（例如 printVector 函式內），必須呼叫此版本
+	const_iterator begin() const noexcept
+	{
+		return data;
+	}
+
+	const_iterator end() const noexcept
+	{
+		return data + size;
+	}
 };
 
 template <typename T> using matrix = vector<vector<T> >;
@@ -221,6 +250,14 @@ template <typename T> void fillMatrix(matrix<T> &M)
 	for (int i = 0; i < row; i++) {
 		fillVector(M[i]);
 	}
+}
+
+template <typename T> void removeBlacklist(vector<T> &V, const vector<T> &blacklist)
+{
+	auto new_end = std::remove_if(V.begin(), V.end(), [&blacklist](const T &x) {
+		return std::find(blacklist.begin(), blacklist.end(), x) != blacklist.end();
+	});
+	V.size = new_end - V.begin();
 }
 
 }
