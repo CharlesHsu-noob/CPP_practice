@@ -252,12 +252,28 @@ template <typename T> void fillMatrix(matrix<T> &M)
 	}
 }
 
-template <typename T> void removeBlacklist(vector<T> &V, const vector<T> &blacklist)
+template <typename T> void removeByBlacklist(vector<T> &V, const vector<T> &blacklist)
 {
 	auto new_end = std::remove_if(V.begin(), V.end(), [&blacklist](const T &x) {
 		return std::find(blacklist.begin(), blacklist.end(), x) != blacklist.end();
 	});
 	V.size = new_end - V.begin();
+}
+
+template <typename T> void removeByIndex(vector<T> &V, const vector<int> &indexList)
+{
+	int writePos = 0; //要被覆蓋掉的值的指標(最後會是size)
+	for (int readPos = 0; readPos < V.size; readPos++) {
+		bool isInBlackList =
+			(std::find(indexList.begin(), indexList.end(), readPos) != indexList.end());
+		//現在這個index有沒有在blacklist裡面
+		if (!isInBlackList) {
+			V.data[writePos] = V.data[readPos];
+			writePos++;
+		}
+		//如果他不在blacklist裡面就把他寫回去V裡面
+	}
+	V.size = writePos;
 }
 
 template <typename T> void resortMatrix(xdd::matrix<T> &M, xdd::matrix<int> &P)

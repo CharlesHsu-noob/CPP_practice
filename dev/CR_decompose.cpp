@@ -125,6 +125,28 @@ xdd::vector<int> backGE(xdd::matrix<double> &A, xdd::vector<int> &freeCol)
 	return pivotCol;
 }
 
+//return C ,R use A's memory space
+xdd::matrix<double> rref(xdd::matrix<double> &A)
+{
+	int row = A.size;
+	int col = A[0].size;
+	bool isZeroRow = true;
+	xdd::vector<int> zeroRow;
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			if (A[i][j] != 0) {
+				isZeroRow = false;
+				break;
+			}
+		}
+		if (isZeroRow) {
+			zeroRow.push_back(i);
+		}
+		isZeroRow = true;
+	}
+	xdd::removeByIndex(A, zeroRow);
+}
+
 void CR_decompose()
 {
 	cout << "----CR decompose----" << endl;
@@ -143,6 +165,8 @@ void CR_decompose()
 	freeCol = GE(A, P);
 
 	pivotCol = backGE(A, freeCol);
+
+	xdd::resortMatrix(A, P);
 }
 
 int main()
