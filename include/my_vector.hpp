@@ -260,6 +260,26 @@ template <typename T> void removeBlacklist(vector<T> &V, const vector<T> &blackl
 	V.size = new_end - V.begin();
 }
 
+template <typename T> void resortMatrix(xdd::matrix<T> &M, xdd::matrix<int> &P)
+{
+	int max_change_times = P.size;
+	int nowRow = 0;
+	int targetRow = 0;
+	for (int i = 0; i < max_change_times; i++) {
+		if (P[i][i] == 1) {
+			continue;
+		}
+		nowRow = i;
+		for (int j = 0; j < max_change_times; j++) {
+			if (P[i][j] == 1) {
+				targetRow = j;
+				std::swap(M[nowRow], M[targetRow]);
+				std::swap(P[nowRow], P[targetRow]);
+				break;
+			}
+		}
+	}
+}
 }
 
 #endif
