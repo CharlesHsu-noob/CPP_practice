@@ -89,8 +89,8 @@ void LUdecompose(xdd::matrix<double> &A, xdd::vector<int> &P_idx)
 	}
 }
 
-void solInverseVector(const xdd::matrix<double> &LU, const xdd::vector<int> &P_idx,
-		      xdd::matrix<double> &Ainv)
+void solInverseVector(const xdd::matrix<double> &LU,
+		      const xdd::vector<int> &P_idx, xdd::matrix<double> &Ainv)
 {
 	//此時A上半部是U,下半部是L
 	//接下來要求U^-1,L^-1
@@ -124,8 +124,9 @@ void solInverseVector(const xdd::matrix<double> &LU, const xdd::vector<int> &P_i
 
 xdd::matrix<double> inverse(xdd::matrix<double> A_copy)
 {
-	int row=A_copy.size;
-	xdd::matrix<double> Ainv=xdd::matrix<double>(row, xdd::vector<double>(row, NAN));
+	int row = A_copy.size;
+	xdd::matrix<double> Ainv =
+		xdd::matrix<double>(row, xdd::vector<double>(row, NAN));
 
 	xdd::vector<int> P_idx(row);
 	for (int i = 0; i < row; i++) {
@@ -142,10 +143,10 @@ xdd::matrix<double> inverse(xdd::matrix<double> A_copy)
 void findMatrixInverse()
 {
 	cout << "----Find Matrix Inverse----" << endl;
-	
-	xdd::matrix<double> A=xdd::readMatrixFromIstream<double>();
 
-	xdd::matrix<double> Ainv=inverse(A);
+	xdd::matrix<double> A = xdd::readMatrixFromIstream<double>();
+
+	xdd::matrix<double> Ainv = inverse(A);
 
 	cout << "----Result----\n" << "A inverse=>" << endl;
 	printMatrix(Ainv);
