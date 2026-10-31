@@ -41,7 +41,7 @@ void UbackSub(const xdd::matrix<double> &A, const xdd::vector<double> &b,
 	}
 }
 
-void decomposeLU(xdd::matrix<double> &A, xdd::vector<int> &P_idx)
+void LUdecompose(xdd::matrix<double> &A, xdd::vector<int> &P_idx)
 {
 	int row = A.size;
 	int col = A[0].size;
@@ -122,33 +122,30 @@ void solInverseVector(const xdd::matrix<double> &LU, const xdd::vector<int> &P_i
 	}
 }
 
-void inverse(xdd::matrix<double> A_copy, xdd::matrix<double> &Ainv)
+xdd::matrix<double> inverse(xdd::matrix<double> A_copy)
 {
-	int row;
-	row = A_copy.size;
+	int row=A_copy.size;
+	xdd::matrix<double> Ainv=xdd::matrix<double>(row, xdd::vector<double>(row, NAN));
 
 	xdd::vector<int> P_idx(row);
 	for (int i = 0; i < row; i++) {
 		P_idx[i] = i;
 	}
 
-	decomposeLU(A_copy, P_idx);
+	LUdecompose(A_copy, P_idx);
 
 	solInverseVector(A_copy, P_idx, Ainv);
+
+	return Ainv;
 }
 
 void findMatrixInverse()
 {
 	cout << "----Find Matrix Inverse----" << endl;
-	int row, col;
-	cout << "The size of matrix A.(row,column)" << endl;
-	cin >> row >> col;
-	xdd::matrix<double> A(row, xdd::vector<double>(col, 0));
-	cout << "Put in the value of the matrix A." << endl;
-	fillMatrix(A);
+	
+	xdd::matrix<double> A=xdd::readMatrixFromIstream<double>();
 
-	xdd::matrix<double> Ainv(row, xdd::vector<double>(col, NAN));
-	inverse(A, Ainv);
+	xdd::matrix<double> Ainv=inverse(A);
 
 	cout << "----Result----\n" << "A inverse=>" << endl;
 	printMatrix(Ainv);

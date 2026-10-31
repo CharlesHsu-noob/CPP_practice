@@ -1,10 +1,11 @@
 #include <iostream>
+#include <tuple>
 #include "my_vector.hpp"
 
 using namespace std;
 
 //return free column's posision
-xdd::vector<int> GE(xdd::matrix<double> &A, xdd::matrix<int> &P)
+xdd::vector<int> GE(xdd::matrix<double> &A)
 {
 	/*CR分解不需要row change*/
 	int row, col;
@@ -45,7 +46,8 @@ xdd::vector<int> GE(xdd::matrix<double> &A, xdd::matrix<int> &P)
 
 		if (count != currentRow) { // 代表要作row change
 			swap(A[currentRow], A[count]);
-			swap(P[currentRow], P[count]);
+			//swap(P[currentRow], P[count]);
+			//CR分解最後的rref會是上三角矩陣所以row change不需要記錄下來
 		}
 
 		for (int j = currentRow + 1 /*當前的row不用作消去*/; j < row; j++) {
@@ -82,7 +84,7 @@ xdd::vector<int> backGE(xdd::matrix<double> &A, xdd::vector<int> &freeCol)
 		pivotCol[i] = i;
 	}
 	//只需要對pivot col作消去 free column不用管他
-	xdd::removeBlacklist(pivotCol, freeCol);
+	xdd::removeByValue(pivotCol, freeCol);
 	int GE_level = pivotCol.size;
 
 	int currentRow = row - 1;
@@ -126,7 +128,7 @@ xdd::vector<int> backGE(xdd::matrix<double> &A, xdd::vector<int> &freeCol)
 }
 
 //return C ,R use A's memory space
-xdd::matrix<double> rref(xdd::matrix<double> &A)
+void rref(xdd::matrix<double> &A)
 {
 	int row = A.size;
 	int col = A[0].size;
@@ -147,30 +149,46 @@ xdd::matrix<double> rref(xdd::matrix<double> &A)
 	xdd::removeByIndex(A, zeroRow);
 }
 
-void CR_decompose()
-{
-	cout << "----CR decompose----" << endl;
-	int row, col;
-	cout << "The size of matrix A.(row,column)" << endl;
-	cin >> row >> col;
-
-	xdd::matrix<double> A(row, xdd::vector<double>(col, 0));
-	cout << "Put in the value of the matrix A." << endl;
-	xdd::fillMatrix(A);
-	xdd::matrix<int> P(row, xdd::vector<int>(row, 0));
-	for (int i = 0; i < row; i++) {
-		P[i][i] = 1;
+xdd::matrix<double> getC(xdd::matrix<double> &A,xdd::vector<int> &pivotCol){
+	int row=A.size;
+	int col=pivotCol.size;
+	xdd::matrix<double> C(row,xdd::vector<double>(col,0));
+	for(int i=0;i<col;i++){
+		for(int j=0;j<row;j++){
+			C[j][i]=A[j][pivotCol[i]];
+		}
 	}
+	return C;
+}
+
+pair<xdd::matrix<double>,xdd::matrix<double>> CR_decompose(xdd::matrix<double> &A)
+{
+	xdd::matrix<double> Acopy=A;
 	xdd::vector<int> freeCol, pivotCol;
-	freeCol = GE(A, P);
+	freeCol = GE(Acopy);
 
-	pivotCol = backGE(A, freeCol);
+	pivotCol = backGE(Acopy, freeCol);
 
-	xdd::resortMatrix(A, P);
+	rref(Acopy);
+
+	xdd::matrix<double> C=getC(A,pivotCol);
+
+	return pair<xdd::matrix<double>,xdd::matrix<double>>(C,Acopy);
 }
 
 int main()
 {
-	CR_decompose();
+	cout << "----CR decompose----" << endl;
+	xdd::matrix<double> A=xdd::readMatrixFromIstream<double>();
+
+	xdd::matrix<double> C,R;
+	std::tie(C, R) = CR_decompose(A);
+
+	cout<<"A=CR decompose result:"<<endl;
+	cout<<"C="<<endl;
+	xdd::printMatrix(C);
+	cout<<"R="<<endl;
+	xdd::printMatrix(R);
+
 	return 0;
 }

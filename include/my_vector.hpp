@@ -252,7 +252,18 @@ template <typename T> void fillMatrix(matrix<T> &M)
 	}
 }
 
-template <typename T> void removeByBlacklist(vector<T> &V, const vector<T> &blacklist)
+template<typename T> matrix<T> readMatrixFromIstream(){
+	int row, col;
+	std::cout << "The size of matrix A.(row,column)" << std::endl;
+	std::cin >> row >> col;
+
+	matrix<double> M(row, vector<double>(col, 0));
+	std::cout << "Put in the value of the matrix A." << std::endl;
+	fillMatrix(M);
+	return M;
+}
+
+template <typename T> void removeByValue(vector<T> &V, const vector<T> &blacklist)
 {
 	auto new_end = std::remove_if(V.begin(), V.end(), [&blacklist](const T &x) {
 		return std::find(blacklist.begin(), blacklist.end(), x) != blacklist.end();
