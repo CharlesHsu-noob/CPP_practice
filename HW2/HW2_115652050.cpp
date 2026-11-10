@@ -14,7 +14,7 @@ const double ERROR = 1e-8;
 
 double f(double x)
 {
-	return x*x - 4 * sin(x);
+	return x * x - 4 * sin(x);
 }
 
 double df(double x)
@@ -33,7 +33,8 @@ double *getABTInput()
    */
 	double *usrin = new double[3];
 	cout << "Give the boundary and the target.\n"
-	     << "a:left boundary\tb:right boundary  target:the value you want to find such that f(x)=target." << endl;
+	     << "a:left boundary\tb:right boundary  target:the value you want to find such that f(x)=target."
+	     << endl;
 	cin >> usrin[0] >> usrin[1] >> usrin[2];
 	return usrin;
 }
@@ -236,7 +237,8 @@ void FindRoot()
 	case 3: {
 		cout << "Use Newton's method." << endl;
 		double init, target;
-		cout << "Give the initial value and the target value(target:f(ans)=target)." << endl;
+		cout << "Give the initial value and the target value(target:f(ans)=target)."
+		     << endl;
 		cin >> init >> target;
 		pair<double, int> ans = newtonsMethod(init, target);
 		if (isnan(ans.first)) {
