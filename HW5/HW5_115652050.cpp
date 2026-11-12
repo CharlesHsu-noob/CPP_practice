@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cmath>
+#include <vector>
 
 #define THEOVALUE 0.54030230586
 
@@ -112,9 +113,21 @@ void numericalDifferentiation()
 		  << std::endl;
 }
 
+#undef THEOVALUE
+
 double g(double x)
 {
 	return std::exp((-1) * x * x);
+}
+
+double h(double x)
+{
+	return sin(1 / x);
+}
+
+double m(double x)
+{
+	return 5 * pow(x, 3) + 3 * x * x + 7 * x - 18;
 }
 
 double compositeTrapezoidal(int n, double (*func)(double), double a = 0.0, double b = 1.0)
@@ -165,6 +178,106 @@ double compositeSimpson(int n, double (*func)(double), double a = 0.0, double b 
 	return ans;
 }
 
+bool isAccurateEnough(double L, double R, double S, double eps)
+{
+	return std::fabs(L + R - S) <= (15 * eps);
+}
+
+double adaptiveSimpson(double a, double b, double (*func)(double), double S,
+		       std::vector<double> &partition, double eps = 1e-9)
+{
+	double mid = (a + b) / 2;
+	double L = compositeSimpson(2, func, a, mid);
+	double R = compositeSimpson(2, func, mid, b);
+	if (isAccurateEnough(L, R, S, eps)) {
+		return R + L + ((R + L - S) / 15.0);
+	}
+	//std::cout << "iterate" << std::endl;
+	//not accurate enough, continue depper iteration.
+	partition.push_back(mid);
+	L = adaptiveSimpson(a, mid, func, L, partition, eps / 2);
+	R = adaptiveSimpson(mid, b, func, R, partition, eps / 2);
+	return L + R; //不需要加(L+R-S)/15 因為遞迴的子節點已經加過一次了
+}
+
+void adaptiveQuadrature()
+{
+	std::cout << "Extend Q2-1" << std::endl;
+	double a = 0.5;
+	double b = 1.5;
+	std::cout << "Find the integration of sin(1/x) on [" << a << "," << b
+		  << "] by using Adaptive Simpson's Rule." << std::endl;
+	double originalS = compositeSimpson(2, h, a, b);
+	std::vector<double> partition;
+	double ans = adaptiveSimpson(a, b, h, originalS, partition);
+	int min_idx = 0;
+	for (int i = 0; i < partition.size(); i++) {
+		min_idx = i;
+		for (int j = i + 1; j < partition.size(); j++) {
+			if (partition[j] < partition[min_idx]) {
+				min_idx = j;
+			}
+		}
+		std::swap(partition[i], partition[min_idx]);
+	}
+	std::cout << "Find the answer= " << std::setprecision(16) << ans << std::endl;
+	std::cout << "Total number of adaptive nodes recorded: " << partition.size() << std::endl;
+	std::cout << "Partition:" << std::endl;
+	for (int i = 0; i < partition.size(); i += 8) {
+		for (int j = i; j < std::min(i + 8, (int)partition.size()); j++) {
+			std::cout << std::setprecision(6) << std::setw(10) << partition[j];
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+	std::cout << "Subinterval widths (dx_i = x_i - x_{i-1}, showing local step size density):"
+		  << std::endl;
+	for (int i = 1; i < partition.size(); i += 8) {
+		for (int j = i; j < std::min(i + 8, (int)partition.size()); j++) {
+			std::cout << std::setprecision(6) << std::setw(10)
+				  << partition[j] - partition[j - 1];
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+	std::cout
+		<< "The subinterval widths are much smaller near the left endpoint (where sin(1/x) oscillates more rapidly)"
+		   "and become larger toward the right endpoint (where the function is smooth), "
+		   "show that nodes automatically concentrate in rapidly oscillating regions."
+		<< std::endl;
+}
+
+//node=2
+double gaussianQuadrature(double a, double b, double (*func)(double))
+{
+	//mapping [a,b] to [-1,1]
+	//x=(b-a)*t/2+(b+a)/2
+	//t=1/root(3)
+	double h = (b - a) / 2.0; //mapping_ratio
+	double mid = (b + a) / 2.0;
+	double inv_sqrt3 = 0.5773502691896257645;
+	double h_sqrt3 = h * inv_sqrt3;
+	return h * (func(mid - h_sqrt3) + func(mid + h_sqrt3));
+}
+
+void extendQ2_2()
+{
+	std::cout << "Extend Q2-2" << std::endl;
+	double a = 1;
+	double b = 10;
+	std::cout << "Gaussian Quadrature of m(x)=5x^3+3x^2+7x-18 on [" << a << "," << b << "]."
+		  << std::endl;
+	double ans = gaussianQuadrature(a, b, m);
+	std::cout << "Find ans= " << std::setprecision(9) << ans << std::endl;
+	std::cout << "Exact analytical value: 13682.25" << std::endl;
+	std::cout << "\nEfficiency Comparison:" << std::endl;
+	std::cout
+		<< "1. 2-Point Gaussian Quadrature only requires 2 function evaluations to achieve the exact result (0 error) for a cubic polynomial."
+		   "\n2. In contrast, Composite Trapezoidal or Midpoint rules would require hundreds of nodes (h -> 0) to reach similar precision."
+		   "\n3. This demonstrates the superior efficiency of Gaussian Quadrature for smooth polynomial functions by optimally placing nodes rather than using equidistant points."
+		<< std::endl;
+}
+
 #define THEOVALUE 0.7468241328124270
 
 void numericalIntagration()
@@ -213,7 +326,9 @@ void numericalIntagration()
 
 int main()
 {
-	//numericalDifferentiation();
+	numericalDifferentiation();
 	numericalIntagration();
+	adaptiveQuadrature(); //Extend Q2-1
+	extendQ2_2();
 	return 0;
 }
