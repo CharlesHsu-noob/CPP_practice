@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Project 5</title>
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.min.js"></script>
+<style>
+  :root {
+    --ultramarine: #0033A0;
+    --ultramarine-deep: #041b4d;
+    --ink: #14161a;
+    --paper: #f7f8fb;
+    --paper-panel: #ffffff;
+    --rule: #d7dbe6;
+    --gray: #6b6f76;
+    --code-bg: #071233;
+    --code-text: #e7ecfa;
+    --code-accent: #7fa8ff;
+    --quote-bg: #eef2fb;
+    --h2-color: #041b4d;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ink: #eceef2;
+      --paper: #0d0f14;
+      --paper-panel: #14161d;
+      --rule: #2a2e3a;
+      --gray: #9aa0ab;
+      --quote-bg: #131a2e;
+      --code-bg: #05081a;
+      --code-text: #dbe4ff;
+      --h2-color: #9fbcff;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ink: #eceef2;
+    --paper: #0d0f14;
+    --paper-panel: #14161d;
+    --rule: #2a2e3a;
+    --gray: #9aa0ab;
+    --quote-bg: #131a2e;
+    --code-bg: #05081a;
+    --code-text: #dbe4ff;
+    --h2-color: #9fbcff;
+  }
+
+  * { box-sizing: border-box; }
+  html {
+    scroll-padding-top: env(safe-area-inset-top, 0px);
+  }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Noto Serif TC", "Songti TC", serif;
+    line-height: 1.9;
+    padding: 40px 20px;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    -webkit-font-smoothing: antialiased;
+  }
+  .sans { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif; }
+
+  .masthead {
+    background: var(--ultramarine);
+    color: #ffffff;
+    border-radius: 12px;
+  }
+  .masthead-bar {
+    height: 6px;
+    background: linear-gradient(90deg, var(--ultramarine-deep), var(--ultramarine) 55%, #4d7fe0);
+  }
+  .masthead-inner {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 36px 24px 30px;
+  }
+  .school-name {
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    opacity: 0.88;
+    margin: 0 0 4px;
+  }
+  .school-name-en {
+    font-size: 0.78rem;
+    opacity: 0.65;
+    margin: 0 0 22px;
+  }
+  .doc-title {
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    line-height: 1.5;
+  }
+  .doc-subtitle {
+    font-size: 1rem;
+    opacity: 0.85;
+    margin: 0;
+  }
+
+  .meta-panel {
+    max-width: 780px;
+    margin: -18px auto 0;
+    padding: 0 24px;
+  }
+  .meta-box {
+    background: var(--paper-panel);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 10px 28px;
+    font-size: 0.92rem;
+    color: var(--gray);
+  }
+  .meta-box .fill { border-bottom: 1px dashed var(--rule); color: var(--ink); padding-bottom: 2px; }
+  @media (max-width: 520px) {
+    .meta-box { grid-template-columns: 1fr; }
+  }
+
+  main {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 24px 90px;
+  }
+
+  .lede {
+    font-size: 1.05rem;
+    color: var(--ink);
+    border-left: 3px solid var(--ultramarine);
+    padding: 4px 0 4px 20px;
+    margin: 8px 0 40px;
+  }
+
+  section.block {
+    margin-bottom: 52px;
+  }
+  section.block h2 {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 1.32rem;
+    font-weight: 700;
+    color: var(--h2-color);
+    margin: 0 0 6px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  h3 {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--ink);
+    margin: 30px 0 12px;
+  }
+
+  p { margin: 0 0 16px; }
+  ul, ol { margin: 0 0 16px; padding-left: 1.4em; }
+  li { margin-bottom: 8px; }
+
+  strong { font-weight: 700; }
+
+  blockquote.ask {
+    margin: 20px 0;
+    padding: 16px 20px;
+    background: var(--quote-bg);
+    border-left: 3px solid var(--ultramarine);
+    border-radius: 0 4px 4px 0;
+    font-style: italic;
+  }
+  blockquote.ask p:last-child { margin-bottom: 0; }
+
+  .hint {
+    font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    font-size: 0.86rem;
+    color: var(--gray);
+  }
+
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    padding: 18px 20px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.65;
+    margin: 18px 0;
+  }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+  p code, li code {
+    background: var(--quote-bg);
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+  }
+  pre .kw   { color: var(--code-accent); }
+  pre .type { color: #9ad1c9; }
+  pre .cm   { color: #7a8194; }
+
+  .task-list {
+    counter-reset: task;
+    list-style: none;
+    padding-left: 0;
+  }
+  .task-list > li {
+    counter-increment: task;
+    position: relative;
+    padding-left: 40px;
+    margin-bottom: 20px;
+  }
+  .task-list > li::before {
+    content: counter(task);
+    position: absolute;
+    left: 0;
+    top: -1px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--ultramarine);
+    color: #fff;
+    font-family: "Noto Sans TC", sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  table.compare {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 0.92rem;
+  }
+  table.compare th, table.compare td {
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  table.compare th {
+    font-family: "Noto Sans TC", sans-serif;
+    color: var(--ultramarine-deep);
+    font-weight: 700;
+    border-bottom: 2px solid var(--ultramarine);
+  }
+
+  .submission {
+    background: var(--paper-panel);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 24px 26px;
+  }
+  .submission h2 { margin-top: 0; }
+
+  footer {
+    text-align: center;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+    color: var(--gray);
+    font-size: 0.82rem;
+    font-family: "Noto Sans TC", sans-serif;
+  }
+
+  ::selection { background: #cfe0ff; }
+</style>
+</head>
+<body>
+
+<div class="masthead-bar"></div>
+<div class="masthead">
+  <div class="masthead-inner">
+    <p class="school-name sans">應數系計概</p>
+    <p class="school-name-en sans">NYCU AM</p>
+    <h1 class="doc-title sans">程式作業 5</h1>
+    <p class="doc-subtitle">從「微分、積分、微分方程」到其 計算數學之路</p>
+  </div>
+</div>
+
+<main>
+
+  <p class="lede">在數值分析/計算數學中，「微分」與「積分」雖是微積分基本定理下的一對逆運算，但它們在計算機裡的<strong>穩定性（Stability）</strong>卻天差地遠：積分因具有平滑效應（Smoothing）而<strong>良置（Well-conditioned）</strong>，微分卻會放大誤差而<strong>敏感（Sensitive）</strong>。本次作業將從 <A href="https://zh.wikipedia.org/zh-tw/%E6%9C%89%E9%99%90%E5%B7%AE%E5%88%86%E6%B3%95" target="_blank">有限差分</a> 出發，實際感受這種差遠，並進一步將 積分的技巧 延伸到 微分方程 與 偏微分方程 的數值解法上。</p>
+<!--
+積分 良置（Well-conditioned）
+https://en.wikipedia.org/wiki/Simpson's_rule#Numerical_stability
+
+微分 <A href="https://en.wikipedia.org/wiki/Numerical_differentiation#:~:text=conditioned" target="_blank">敏感（Sensitive）</a>
+-->
+  <section class="block">
+    <h2>第一題：數值微分（Numerical Differentiation）</h2>
+
+    <h3>背景說明</h3>
+    <p>估計函數 $f(x)$ 導數時，直覺告訴我們 步長 $h$ 越小 結果應該越精確。但 數值微分 揭示了一個反直覺的事實：<strong>總誤差並非單調遞減</strong>。以 中央差分公式 為例：</p>
+    <p>$$f'(x_0) \approx \frac{f(x_0+h) - f(x_0-h)}{2h}$$</p>
+    <p>其 總誤差 由兩股互相對抗的力量組成：<strong><A href="https://zh.wikipedia.org/zh-tw/%E6%88%AA%E5%B0%BE%E8%AA%A4%E5%B7%AE" target="_blank">截斷誤差</a>（<A href="https://en.wikipedia.org/wiki/Truncation_error" target="_blank">Truncation error</a>）</strong>，階數為 $O(h^2)$，源自以有限差分逼近極限的理論缺陷；以及 <strong><A href="https://zh.wikipedia.org/zh-tw/%E6%8D%A8%E5%85%A5%E8%AA%A4%E5%B7%AE" target="_blank">捨入誤差（Round-off error）</a></strong>，階數為 $O(\varepsilon/h)$，源自浮點數儲存精度的極限。誤差上界 <A href="https://en.wikipedia.org/wiki/Numerical_differentiation#:~:text=we get" target="_blank">可寫成</a>：</p>
+    <p>$$\left|f'(x_0) - \frac{\tilde f(x_0+h)-\tilde f(x_0-h)}{2h}\right| \le \frac{\varepsilon}{h} + \frac{h^2}{6}M$$</p>
+    <p>當 $h$ 縮小，截斷誤差 確實下降，但因 $h$ 出現在分母，捨入誤差 反而被放大。因此 存在一個 <strong>最佳步長 $h^{*}$</strong>，當再繼續縮小 $h$ 後，會讓誤差上升。</p>
+
+    <h3>任務要求</h3>
+    <ol class="task-list">
+      <li>利用 C++ 程式語言，對測試函數 $f(x) = \sin(x)$，在 $x_0 = 1$ 處，其精確導數為 $\cos(1)$。分別<strong>實作三種差分公式</strong>：
+        <ul>
+          <li>前向差分（Forward difference）：$\dfrac{f(x_0+h)-f(x_0)}{h}$</li>
+          <li>後向差分（Backward difference）：$\dfrac{f(x_0)-f(x_0-h)}{h}$</li>
+          <li>中央差分（Central difference）：$\dfrac{f(x_0+h)-f(x_0-h)}{2h}$</li>
+        </ul>
+      </li>
+      <li>令 $h$ 從 $1.0$ 開始，每次除以 $10$，一路縮小到約 $10^{-14}$，對每一個 $h$ 計算三種差分公式所得的近似導數，並與精確值 $\cos(1)$ 比較，記錄<strong>絕對誤差</strong>。</li>
+      <li>將結果（$h$、三種方法的誤差）輸出成表格或檔案，觀察：
+        <ul>
+          <li>誤差是否先下降，然後 在某個 $h$ 之後開始上升？</li>
+          <li>中央差分 之 理論階數 為 $O(h^2)$ 與 前向/後向差分 之 理論階數 $O(h)$ 的 截斷誤差下降速度 是否符合預期？</li>
+        </ul>
+      </li>
+    </ol>
+
+    <h3>問題延伸</h3>
+    <ul class="task-list">
+      <li>
+        <strong>尋找最佳步長</strong>
+        <p>根據 誤差上界 公式，理論上 中央差分 的 最佳步長 約為 $h^{*} \sim \varepsilon_{mach}^{1/3}$。比較 在 任務要求2 之實驗數據 中 誤差最小的 $h$，其量級 與理論估計是否相符。</p>
+      </li>
+      <li>
+        <strong>二階導數的差分公式</strong>
+        <p>推導並實作二階中央差分公式 $f''(x_0) \approx \dfrac{f(x_0+h) - 2f(x_0) + f(x_0-h)}{h^2}$，觀察其捨入誤差是否比一階導數更嚴重（提示：分母是 $h^2$ 而非 $h$）。</p>
+      </li>
+      <li>
+        <strong><A href="https://en.wikipedia.org/wiki/Richardson_extrapolation" target="_blank">Richardson 外推法</A></strong>
+        <p>利用兩個不同步長（如：$h$ 與 $h/2$）的 中央差分 結果進行 Richardson 外推，能否在不需要極小 $h$ 的情況下，得到更高精度（$O(h^4)$）的導數估計？</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>第二題：數值積分（Numerical Integration）</h2>
+
+    <h3>背景說明</h3>
+    <p>與微分相反，積分本質上是 求和與平均 的過程，具有<strong>平滑效應</strong>，因此數值上相對穩健。常見的三種求積法則各有不同的精確度階數（Degree of precision）：連續函數 $f(x)$  定義在 $[a,b]$，令 $h  =(b-a)/n$, $x_i = a + i h$, $i=0,1,2,\ldots,n$, and $\bar{x}_j = \frac{1}{2}(x_{j-1} + x_j)$, $j=1,2,\ldots,n$.</p>
+
+    <table class="compare">
+      <tr>
+        <th>方法</th>
+        <th>核心原理</th>
+        <th>特性</th>
+      </tr>
+      <tr>
+        <td>梯形法則<br><span class="hint">Trapezoid Rule</span></td>
+        <td>以區間兩端點連線（一次多項式）逼近曲線下面積</td>
+        <td>局部誤差係數約 $1/12$，誤差階數 $O(h^3)$（單區間）</td>
+      </tr>
+      <tr>
+        <td>中點法則<br><span class="hint">Midpoint Rule</span></td>
+        <td>只取區間中點的函數值乘以區間寬度</td>
+        <td>局部誤差係數約 $1/24$，因對稱性使誤差比梯形法則約小一半</td>
+      </tr>
+      <tr>
+        <td>辛普森法則<br><span class="hint">Simpson's Rule</span></td>
+        <td>以拋物線（二次多項式）逼近曲線下面積</td>
+        <td>因偶數階節點的「額外躍升」，精確度 階數達到 3 階 （即 可精確積分三次多項式）</td>
+      </tr>
+    </table>
+<!--
+何謂 精確度
+-->
+    <h3>任務要求</h3>
+    <ol class="task-list">
+      <li>利用 C++ 程式語言，對測試函數 $f(x) = e^{-x^2}$ 在區間 $[0,1]$ 上，<strong>實作複合（Composite）版本</strong>的：
+        <ul>
+          <li><A href="https://en.wikipedia.org/wiki/Numerical_integration#:~:text=composite trapezoidal rule"  target="_blank">複合梯形法則 (composite trapezoidal rule)</A> $\displaystyle T_n = \frac{h}{2} \,[  f(x_0) +  2f(x_1) + 2f(x_2) + \cdots + 2f(x_{n-1}) + f(x_n) ]$ </li>
+          <li>複合中點法則 $\displaystyle M_n =  h \,[  f(\bar{x}_1) +  f(\bar{x}_2) + \cdots + f(\bar{x}_n) ]$</li>
+          <li><A href="https://en.wikipedia.org/wiki/Simpson's_rule#:~:text=regular Simpson's rule"  target="_blank">複合辛普森法則 (composite Simpson's rule)</A> $\displaystyle S_n = \frac{h}{3} \,[  f(x_0) +  4f(x_1) + 2f(x_2) + 4f(x_3) + \cdots + 2f(x_{n-2}) + 4f(x_{n-1}) + f(x_n) ]$, where $n$ is even.</li>
+        </ul>
+      </li>
+      <li>將區間切割的子區間數 $n$ 由小到大變化（例如：$n = 2, 4, 8, 16, \dots, 1024$），計算各方法的積分近似值，並與高精度參考解比較，記錄<strong>絕對誤差</strong>。</li>
+      <li>將 $n$ 加倍時的誤差比值印出，驗證各方法的收斂階數是否符合理論預期：<ul>
+         <li>梯形法則、中點法則 約為 $O(h^2)$</li>
+         <li>辛普森法則 約為 $O(h^4)$</li>
+      </ul></li>
+    </ol>
+
+    <h3>問題延伸</h3>
+    <ul class="task-list">
+      <li>
+        <strong>自適應求積（Adaptive Quadrature）</strong>
+        <p>實作一個簡單的 <A href="https://en.wikipedia.org/wiki/Adaptive_Simpson's_method"  target="_blank">自適應辛普森法</A>：比較整個區間的近似值 $S(a,b)$ 與分成兩半後的近似值之和 $S_1+S_2$，若兩者差異超過容差 $TOL$，則遞迴細分區間。針對一個在局部劇烈震盪的函數（如 $f(x) = \sin(1/x)$ 附近的區間）測試，觀察節點是否自動集中在震盪劇烈處。</p>
+      </li>
+      <li>
+        <strong>高斯求積（<A href="https://en.wikipedia.org/wiki/Gaussian_quadrature"  target="_blank">Gaussian Quadrature</A>）</strong>
+        <p>查詢並實作 二點高斯求積公式（節點 取自 2 階 <A href="https://en.wikipedia.org/wiki/Gaussian_quadrature#Gauss%E2%80%93Legendre_quadrature"  target="_blank">勒讓德多項式 的根 $\pm 1/\sqrt{3}$</A>），比較其僅用 2 個節點卻能精確積分 3 次多項式的效果，與需要更多節點的複合方法相比效率如何？</p>
+      </li>
+      <li>
+        <strong><A href="https://zh.wikipedia.org/wiki/%E7%89%9B%E9%A0%93-%E5%AF%87%E6%AC%A1%E5%85%AC%E5%BC%8F"  target="_blank">牛頓-寇茨法則</A> 的病態現象</strong>
+        <p>嘗試使用等間距節點數 $n \ge 11$ 的高階牛頓-寇茨公式，觀察其權重是否出現負值，並討論這對計算穩定性的影響。</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>延伸問題一：常微分方程數值解（Numerical ODE）</h2>
+
+    <h3>背景說明</h3>
+    <p>許多物理定律（如：牛頓第二運動定律 $F=ma$）本質上是 高階微分方程，但 數值軟體 通常只處理<strong>一階系統</strong>，$\dot{y} = f(t,y)$, $t\in [0,T]$ 且 $f$ 為 連續函數 。因此需先將高階 常微分方程 (ODE) 透過引入新變數（如：令 $u_1 = y$，$u_2 = y'$）降階為一階方程組，再套用數值方法逐步推進。</p>
+
+    <table class="compare">
+      <tr>
+        <th>方法</th>
+        <th>類型</th>
+        <th>特性</th>
+      </tr>
+      <tr>
+        <td><A href="https://zh.wikipedia.org/zh-tw/%E6%AC%A7%E6%8B%89%E6%96%B9%E6%B3%95#%E6%AC%A7%E6%8B%89%E6%96%B9%E6%B3%95%E7%9A%84%E6%8E%A8%E5%AF%BC"  target="_blank">歐拉法</A><br><span class="hint">Forward Euler</span></td>
+        <td>顯式（Explicit）</td>
+        <td>只用當前資訊 $f(t_k,y_k)$ 推算未來，計算簡單但穩定區域狹窄，屬一階精確度</td>
+      </tr>
+      <tr>
+        <td><A href="http://zh.wikipedia.org/zh-tw/%E5%8F%8D%E5%90%91%E6%AC%A7%E6%8B%89%E6%B3%95#%E6%8E%A8%E5%AF%BC"  target="_blank">後向歐拉法</A><br><span class="hint">Backward Euler</span></td>
+        <td>隱式（Implicit）</td>
+        <td>需求解包含未來資訊 $f(t_{k+1},y_{k+1})$ 的代數方程，但具無條件穩定性</td>
+      </tr>
+      <tr>
+        <td><A href="https://zh.wikipedia.org/wiki/%E9%BE%99%E6%A0%BC-%E5%BA%93%E5%A1%94%E6%B3%95#%E5%9B%9B%E9%98%B6%E9%BE%99%E6%A0%BC-%E5%BA%93%E5%A1%94%E6%B3%95"  target="_blank">四階 龍格-庫塔法</A><br>4th-order Runge-Kutta (<span class="hint">RK4</span>)</td>
+        <td>顯式（Explicit）</td>
+        <td>每步計算 4 次函數值加權平均，達到四階精確度，精度與效率的常見折衷</td>
+      </tr>
+    </table>
+
+    <h3>任務要求</h3>
+    <ol class="task-list">
+      <li>利用 C++ 程式語言，對測試問題 $y' = -2y,\ y(0)=1$（精確解 $y(t)=e^{-2t}$），<strong>實作三種方法</strong>：歐拉法、後向歐拉法（可用簡單代數求解，因本例為線性方程）、四階 Runge-Kutta 法。</li>
+      <li>固定終點時間 $T=2$，令 步長 $h$ 逐漸縮小，比較各方法在 $t=T$ 處與精確解的誤差，驗證其收斂階數。</li>
+      <li>將牛頓第二運動定律 $y'' = -g$（自由落體）改寫為一階方程組 $u_1'=u_2,\ u_2'=-g$，並用 RK4 求解，繪出（或輸出）位置與速度隨時間的變化。</li>
+    </ol>
+
+    <h3>問題延伸</h3>
+    <ul class="task-list">
+      <li>
+        <strong><A href="https://zh.wikipedia.org/zh-tw/%E5%88%9A%E6%80%A7%E6%96%B9%E7%A8%8B"  target="_blank">剛性問題（Stiffness）</A></strong>
+        <p>對剛性系統 $y' = -100y + 100t + 101$ 使用 顯式歐拉法，理論上穩定性要求 $h < 0.02$。試驗證：當 $h$ 略大於此門檻時，數值解是否會劇烈發散？改用隱式方法（如：後向歐拉）是否能在較大的 $h$ 下仍保持穩定？</p>
+      </li>
+      <li>
+        <strong>穩定性 vs. 精確度</strong>
+        <p>比較 梯形法（Trapezoid Method，隱式、二階精確、無條件穩定）與 顯式歐拉法 在同一剛性問題上的表現，討論「隱式方法需要額外求解代數方程」這個代價，是否值得換取 穩定性？</p>
+      </li>
+    </ul>
+  </section>
+
+  <section class="block">
+    <h2>延伸問題二：偏微分方程數值解（Numerical PDE）</h2>
+
+    <h3>背景說明</h3>
+    <p>二階線性偏微分方程 $au_{xx}+bu_{xy}+cu_{yy}+\dots=0$ 依 判別式 $b^2-4ac$ 的正負可分為三類：<ul>
+       <li><strong>雙曲型</strong>（如：波方程，資訊沿 特徵線 傳遞、不趨向穩態） $b^2-4ac > 0$ </li>
+       <li><strong>拋物型</strong>（如：熱方程，隨時間耗散並趨向穩態）$b^2-4ac = 0$ </li>
+       <li><strong>橢圓型</strong>（如：Poisson 方程，描述已達平衡的穩態系統）$b^2-4ac < 0$</li></ul>
+在一維區間 $[a,b]$上，求解時 第一步是將 連續空間 <strong><a href="https://zh.wikipedia.org/zh-tw/%E6%95%B0%E5%80%BC%E5%88%86%E6%9E%90#%E9%9B%A2%E6%95%A3%E5%8C%96" target="_blank">離散化（Discretization）</A></strong>：定義步長 $h=(b-a)/n$，座標 $x_i = a+ih$，將原方程轉化為網格點上的聯立代數方程。</p>
+
+    <table class="compare">
+      <tr>
+        <th>方法</th>
+        <th>核心原理</th>
+        <th>特性</th>
+      </tr>
+      <tr>
+        <td>向前差分法<br><span class="hint">Forward-Difference</span></td>
+        <td>用當下時間層的狀態直接推算下一時間層</td>
+        <td>顯式方法，計算簡便，但存在嚴格的穩定性條件，步長稍有不慎便會發散</td>
+      </tr>
+      <tr>
+        <td>向後差分法<br><span class="hint">Backward-Difference</span></td>
+        <td>用未來時間層的資訊建立方程，需求解三對角矩陣系統</td>
+        <td>隱式方法，計算較沉重，但無條件穩定</td>
+      </tr>
+      <tr>
+        <td>Crank-Nicolson 法</td>
+        <td>將向前與向後差分平均，兼顧當前與未來時間層</td>
+        <td>隱式、無條件穩定，且具二階精確度，是穩定性與精確度的折衷</td>
+      </tr>
+    </table>
+
+    <h3>任務要求</h3>
+    <ol class="task-list">
+      <li>利用 C++ 程式語言，對 <A href="https://zh.wikipedia.org/zh-tw/%E6%9C%89%E9%99%90%E5%B7%AE%E5%88%86%E6%B3%95#%E7%AF%84%E4%BE%8B%EF%BC%9A%E7%86%B1%E5%82%B3%E5%B0%8E%E6%96%B9%E7%A8%8B"  target="_blank">一維熱傳導方程</A> $u_t = u_{xx}$（$0\le x\le 1$，初始條件與邊界條件自訂，如 $u(x,0)=\sin(\pi x)$，$u(0,t)=u(1,t)=0$），<strong>實作向前差分法（<A href="https://zh.wikipedia.org/zh-tw/%E6%9C%89%E9%99%90%E5%B7%AE%E5%88%86%E6%B3%95#%E9%A1%AF%E5%BC%8F%E6%96%B9%E6%B3%95"  target="_blank">顯式</A>）</strong>，並觀察 當 時間步長 $\Delta t$ 超過 穩定性門檻 $\Delta t \le \dfrac{(\Delta x)^2}{2}$ 時，數值解是否開始震盪或發散。</li>
+      <li><strong>實作向後差分法（<A href="https://zh.wikipedia.org/zh-tw/%E6%9C%89%E9%99%90%E5%B7%AE%E5%88%86%E6%B3%95#%E9%9A%B1%E5%BC%8F%E6%96%B9%E6%B3%95"  target="_blank">隱式</A>）</strong>，需建立並求解三對角矩陣系統（可用 Thomas 演算法），驗證其在較大 $\Delta t$ 下仍保持穩定。</li>
+      <li>將數值解與此問題的精確解 $u(x,t) = e^{-\pi^2 t}\sin(\pi x)$ 比較，記錄不同 $\Delta x,\Delta t$ 組合下的誤差。</li>
+    </ol>
+
+    <h3>問題延伸</h3>
+    <ul class="task-list">
+      <li>
+        <strong><A href="https://zh.wikipedia.org/zh-tw/%E6%9C%89%E9%99%90%E5%B7%AE%E5%88%86%E6%B3%95#%E5%85%8B%E5%85%B0%E5%85%8B%EF%BC%8D%E5%B0%BC%E7%A7%91%E5%B0%94%E6%A3%AE%E6%96%B9%E6%B3%95"  target="_blank">Crank-Nicolson 法</A></strong>
+        <p>實作 Crank-Nicolson 法求解同一個熱傳導問題，比較其誤差是否確實優於純 向前 或 向後差分法（驗證其二階精確度）。</p>
+      </li>
+      <li>
+        <strong>CFL 條件與 <A href="https://zh.wikipedia.org/zh-tw/%E5%8F%8C%E6%9B%B2%E5%9E%8B%E5%81%8F%E5%BE%AE%E5%88%86%E6%96%B9%E7%A8%8B"  target="_blank">雙曲型方程</A></strong>
+        <p>改求解一維波方程或對流方程 $u_{tt} = -c\,u_{xx}$，實作顯式差分格式，並實驗驗證 CFL 條件（$\Delta t$ 與 $\Delta x$ 的比例關係）：當比例不滿足 CFL 條件時，數值解是否必然不穩定？</p>
+      </li>
+      <li>
+        <strong><A href="https://zh.wikipedia.org/zh-tw/%E6%A4%AD%E5%9C%86%E5%9E%8B%E5%81%8F%E5%BE%AE%E5%88%86%E6%96%B9%E7%A8%8B"  target="_blank">橢圓型方程</A>：Poisson 方程</strong>
+        <p>求解二維 Poisson 方程 $u_{xx}+u_{yy}=f(x,y)$，將網格點上的方程組裝成稀疏線性系統 $Ax=b$，並用簡單迭代法（如：Jacobi 或 Gauss-Seidel）求解。討論：為何 $A$ 是稀疏矩陣？迭代法與直接消去法相比，在此類大型稀疏系統上有何優勢？</p>
+      </li>
+      <li>
+        <strong>線量法（Method of Lines）與  剛性/僵硬性（Stiffness）</strong>
+        <p>將一維熱方程僅對<strong>空間</strong>做離散化（不離散<strong>時間</strong>），轉化為一組常微分方程系統，並討論：當空間步長 $\Delta x$ 縮小時，此 ODE 系統的 Jacobian 矩陣特徵值 範圍如何變化？這對顯式時間積分法（如：歐拉法）的穩定步長 $\Delta t$ 有何限制？</p>
+      </li>
+<!--
+ - 網格越細，剛性越恐怖：這個系統的矩陣最大特徵值與 $\frac{1}{(\Delta x)^{2}}$ 成正比。
+ - 當 為了提高空間精度而將空間網格切得越細, $\Delta x$ 越小，系統的特徵值就會暴增，導致系統的剛性（僵硬程度）呈現平方級數劇烈上升。
+-->
+    </ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-content">© NYCU 應用數學系 計算機概論</div>
+</footer>
+
+</body>
+</html>
