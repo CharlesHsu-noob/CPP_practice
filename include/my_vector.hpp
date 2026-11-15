@@ -177,7 +177,8 @@ template <typename T> struct vector {
 
 	iterator end() noexcept
 	{
-		return data + size; // 指向最後一個元素的下一個位置（Past-the-end）
+		return data +
+		       size; // 指向最後一個元素的下一個位置（Past-the-end）
 	}
 
 	// 2. const 版本：當 vector 物件是 const 時（例如 printVector 函式內），必須呼叫此版本
@@ -204,8 +205,8 @@ template <typename T> void printVector(const vector<T> &V)
 		if (std::fabs(V[i]) < precision) {
 			std::cout << std::setw(10) << 0;
 		} else {
-			std::cout << std::setw(10) << std::fixed << std::setprecision(digits * (-1))
-				  << V[i];
+			std::cout << std::setw(10) << std::fixed
+				  << std::setprecision(digits * (-1)) << V[i];
 		}
 	}
 	std::cout << std::endl;
@@ -232,7 +233,6 @@ template <typename T> void fillVector(vector<T> &V)
 	std::getline(std::cin, line);
 	std::stringstream ssline(line);
 	T num;
-	int i;
 	V.clear();
 	while (ssline >> num) {
 		V.push_back(num);
@@ -244,15 +244,17 @@ template <typename T> void fillMatrix(matrix<T> &M)
 {
 	int row = M.size;
 	std::cout << "Put the element here(by row):\n";
-	std::cout << "Put all value in the same row in same line and divide them by "
-		     "<space> and press <Enter> after finished a row."
-		  << std::endl;
+	std::cout
+		<< "Put all value in the same row in same line and divide them by "
+		   "<space> and press <Enter> after finished a row."
+		<< std::endl;
 	for (int i = 0; i < row; i++) {
 		fillVector(M[i]);
 	}
 }
 
-template<typename T> matrix<T> readMatrixFromIstream(){
+template <typename T> matrix<T> readMatrixFromIstream()
+{
 	int row, col;
 	std::cout << "The size of matrix A.(row,column)" << std::endl;
 	std::cin >> row >> col;
@@ -263,20 +265,25 @@ template<typename T> matrix<T> readMatrixFromIstream(){
 	return M;
 }
 
-template <typename T> void removeByValue(vector<T> &V, const vector<T> &blacklist)
+template <typename T>
+void removeByValue(vector<T> &V, const vector<T> &blacklist)
 {
-	auto new_end = std::remove_if(V.begin(), V.end(), [&blacklist](const T &x) {
-		return std::find(blacklist.begin(), blacklist.end(), x) != blacklist.end();
-	});
+	auto new_end =
+		std::remove_if(V.begin(), V.end(), [&blacklist](const T &x) {
+			return std::find(blacklist.begin(), blacklist.end(),
+					 x) != blacklist.end();
+		});
 	V.size = new_end - V.begin();
 }
 
-template <typename T> void removeByIndex(vector<T> &V, const vector<int> &indexList)
+template <typename T>
+void removeByIndex(vector<T> &V, const vector<int> &indexList)
 {
 	int writePos = 0; //要被覆蓋掉的值的指標(最後會是size)
 	for (int readPos = 0; readPos < V.size; readPos++) {
 		bool isInBlackList =
-			(std::find(indexList.begin(), indexList.end(), readPos) != indexList.end());
+			(std::find(indexList.begin(), indexList.end(),
+				   readPos) != indexList.end());
 		//現在這個index有沒有在blacklist裡面
 		if (!isInBlackList) {
 			V.data[writePos] = V.data[readPos];

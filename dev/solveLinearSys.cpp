@@ -27,7 +27,8 @@ bool isLinearSysSolvable(const vector<vector<double> > &M)
 	return true;
 }
 
-void extendedMatrixGE(vector<vector<double> > &A, vector<vector<int> > &P, vector<double> &b)
+void extendedMatrixGE(vector<vector<double> > &A, vector<vector<int> > &P,
+		      vector<double> &b)
 {
 	int row, col;
 	row = A.size;
@@ -62,11 +63,13 @@ void extendedMatrixGE(vector<vector<double> > &A, vector<vector<int> > &P, vecto
 			if (elim == 0) {
 				continue;
 			}
-			for (int k = i + 1 /*因為A[j][i]最後一定會變成0,所以直接從下一個開始*/
+			for (int k = i +
+				     1 /*因為A[j][i]最後一定會變成0,所以直接從下一個開始*/
 			     ;
 			     k < col; k++) {
 				double coff =
-					A[i][k] * multiplier; // 當pivot那一row對應col的元素*倍率
+					A[i][k] *
+					multiplier; // 當pivot那一row對應col的元素*倍率
 				A[j][k] = A[j][k] - coff;
 			}
 			A[j][i] = 0.0; //手動賦值
@@ -76,15 +79,16 @@ void extendedMatrixGE(vector<vector<double> > &A, vector<vector<int> > &P, vecto
 	}
 }
 
-vector<double> backSub(const vector<vector<double> > &A, const vector<vector<int> > &P,
-		       const vector<double> &b)
+vector<double> backSub(const vector<vector<double> > &A,
+		       const vector<vector<int> > &P, const vector<double> &b)
 { // Back substitution
 	int row = b.size;
 	int col = A[0].size;
 	// 理論上col=row
 	double temp_b;
-	vector<double> value(row,
-			     NAN); // 這是用來算出數值的向量 沒有處理因為row change造成的錯位
+	vector<double> value(
+		row,
+		NAN); // 這是用來算出數值的向量 沒有處理因為row change造成的錯位
 	vector<double> x(row, NAN); // 這是要回傳的向量 需要重新排序
 	for (int i = row - 1; i > (-1); i--) { // 由下往上
 		temp_b = b[i];
@@ -122,7 +126,7 @@ void debugInfo(const vector<vector<double> > &A, const vector<vector<int> > &P,
 vector<double> solLinearSys(matrix<double> &A, vector<double> &b)
 {
 	int row = A.size;
-	int col = A[0].size;
+	//int col = A[0].size;
 
 	vector<vector<int> > P(row, vector<int>(row, 0));
 	for (int i = 0; i < row; i++) {
@@ -132,7 +136,8 @@ vector<double> solLinearSys(matrix<double> &A, vector<double> &b)
 	extendedMatrixGE(A, P, b);
 
 	if (!isLinearSysSolvable(A)) {
-		cout << "This matrix is not solvable or has infinite solution!" << endl;
+		cout << "This matrix is not solvable or has infinite solution!"
+		     << endl;
 		cout << "R_0 of A:" << endl;
 		printMatrix(A);
 		cout << "b:" << endl;
@@ -145,6 +150,7 @@ vector<double> solLinearSys(matrix<double> &A, vector<double> &b)
 	return x;
 }
 
+#ifdef SOL_L_SYS
 int main()
 {
 	cout << "----Solve Linear System----" << endl;
@@ -171,3 +177,4 @@ int main()
 	printVector(x);
 	return 0;
 }
+#endif
