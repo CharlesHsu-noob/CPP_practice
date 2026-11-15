@@ -4,7 +4,7 @@
 using namespace std;
 using namespace xdd;
 
-bool isLinearSysSolvable(const vector<vector<double> > &M)
+bool isLinearSysSolvable(const matrix<double> &M)
 {
 	int a = 0;
 	int row = M.size;
@@ -27,8 +27,7 @@ bool isLinearSysSolvable(const vector<vector<double> > &M)
 	return true;
 }
 
-void extendedMatrixGE(vector<vector<double> > &A, vector<vector<int> > &P,
-		      vector<double> &b)
+void extendedMatrixGE(matrix<double> &A, vector<int> &P, vector<double> &b)
 {
 	int row, col;
 	row = A.size;
@@ -56,20 +55,18 @@ void extendedMatrixGE(vector<vector<double> > &A, vector<vector<int> > &P,
 
 		for (int j = i + 1 /*當前的row不用作消去*/; j < row; j++) {
 			double elim = A[j][i];
+			if (std::fabs(elim) < 1e-9) {
+				continue;
+			}
 			// 這一個row的所有元素都會用到這個元素，但這個元素在地一個迴圈就會被消去，所以要額外寫一個變數保留他
 			// 即row_j -= row_pivot * {row_j第一個非0元素}/pivot
 			double multiplier = elim / pivot;
 
-			if (elim == 0) {
-				continue;
-			}
-			for (int k = i +
-				     1 /*因為A[j][i]最後一定會變成0,所以直接從下一個開始*/
+			for (int k = i + 1 /*因為A[j][i]最後一定會變成0,所以直接從下一個開始*/
 			     ;
 			     k < col; k++) {
 				double coff =
-					A[i][k] *
-					multiplier; // 當pivot那一row對應col的元素*倍率
+					A[i][k] * multiplier; // 當pivot那一row對應col的元素*倍率
 				A[j][k] = A[j][k] - coff;
 			}
 			A[j][i] = 0.0; //手動賦值
@@ -79,16 +76,15 @@ void extendedMatrixGE(vector<vector<double> > &A, vector<vector<int> > &P,
 	}
 }
 
-vector<double> backSub(const vector<vector<double> > &A,
-		       const vector<vector<int> > &P, const vector<double> &b)
+vector<double> backSub(const matrix<double> &A, const vector<double> &b)
 { // Back substitution
 	int row = b.size;
 	int col = A[0].size;
 	// 理論上col=row
 	double temp_b;
-	vector<double> value(
-		row,
-		NAN); // 這是用來算出數值的向量 沒有處理因為row change造成的錯位
+	vector<double> value(row, NAN);
+	// 這是用來算出數值的向量 沒有處理因為row change造成的錯位
+
 	vector<double> x(row, NAN); // 這是要回傳的向量 需要重新排序
 	for (int i = row - 1; i > (-1); i--) { // 由下往上
 		temp_b = b[i];
@@ -98,27 +94,16 @@ vector<double> backSub(const vector<vector<double> > &A,
 		}
 		temp_b /= A[i][i];
 		value[i] = temp_b;
-
-		// 處理x的順序因為row change而亂掉的問題
-		for (int j = 0; j < col; j++) {
-			if (P[i][j] == 1) {
-				x[j] = temp_b;
-				//cout << "value[" << i << "]=x[" << j << "]." << endl;
-				//debugInfo
-				break;
-			}
-		}
 	}
-	return x;
+	return value;
 }
 
-void debugInfo(const vector<vector<double> > &A, const vector<vector<int> > &P,
-	       const vector<double> &b)
+void debugInfo(const matrix<double> &A, const vector<int> &P, const vector<double> &b)
 {
 	cout << "A after GE:" << endl;
 	printMatrix(A);
 	cout << "P:" << endl;
-	printMatrix(P);
+	printVector(P);
 	cout << "b after GE:" << endl;
 	printVector(b);
 }
@@ -128,24 +113,23 @@ vector<double> solLinearSys(matrix<double> &A, vector<double> &b)
 	int row = A.size;
 	//int col = A[0].size;
 
-	vector<vector<int> > P(row, vector<int>(row, 0));
+	vector<int> P(row);
 	for (int i = 0; i < row; i++) {
-		P[i][i] = 1;
+		P[i] = i;
 	}
 
 	extendedMatrixGE(A, P, b);
 
 	if (!isLinearSysSolvable(A)) {
-		cout << "This matrix is not solvable or has infinite solution!"
-		     << endl;
+		cout << "This matrix is not solvable or has infinite solution!" << endl;
 		cout << "R_0 of A:" << endl;
 		printMatrix(A);
 		cout << "b:" << endl;
 		printVector(b);
-		return NAN;
+		return vector<double>(row, NAN);
 	}
 
-	vector<double> x = backSub(A, P, b);
+	vector<double> x = backSub(A, b);
 
 	return x;
 }
@@ -163,7 +147,7 @@ int main()
 		return 0;
 	}
 
-	vector<vector<double> > A(row, vector<double>(col, 0));
+	matrix<double> A(row, vector<double>(col, 0));
 	cout << "Put in the value of the matrix A." << endl;
 	fillMatrix(A);
 

@@ -9,7 +9,7 @@ pair<xdd::matrix<double>, xdd::matrix<double> > CR_decompose(xdd::matrix<double>
 //end include
 
 //include from solLinearSys.cpp
-xdd::vector<double> solLinearSys(xdd::matrix<double> &A, xdd::vector<double> &b);
+xdd::vector<double> backSub(const xdd::matrix<double> &A, const xdd::vector<double> &b);
 //end include
 
 xdd::vector<int> getPivotCol(const xdd::matrix<double> &M)
@@ -88,7 +88,7 @@ xdd::vector<xdd::vector<double> > nullspace(xdd::matrix<double> &A)
 
 		//b.size-1=pivotCol.size
 		temp_A[pivotCol.size][pivotCol.size] = 1;
-		xdd::vector<double> temp_x = solLinearSys(temp_A, b);
+		xdd::vector<double> temp_x = backSub(temp_A, b);
 
 		for (int j = 0; j < pivotCol.size; j++) {
 			x_n[i][j] = temp_x[j];

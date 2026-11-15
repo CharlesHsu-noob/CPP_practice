@@ -177,8 +177,7 @@ template <typename T> struct vector {
 
 	iterator end() noexcept
 	{
-		return data +
-		       size; // 指向最後一個元素的下一個位置（Past-the-end）
+		return data + size; // 指向最後一個元素的下一個位置（Past-the-end）
 	}
 
 	// 2. const 版本：當 vector 物件是 const 時（例如 printVector 函式內），必須呼叫此版本
@@ -205,8 +204,8 @@ template <typename T> void printVector(const vector<T> &V)
 		if (std::fabs(V[i]) < precision) {
 			std::cout << std::setw(10) << 0;
 		} else {
-			std::cout << std::setw(10) << std::fixed
-				  << std::setprecision(digits * (-1)) << V[i];
+			std::cout << std::setw(10) << std::fixed << std::setprecision(digits * (-1))
+				  << V[i];
 		}
 	}
 	std::cout << std::endl;
@@ -244,10 +243,9 @@ template <typename T> void fillMatrix(matrix<T> &M)
 {
 	int row = M.size;
 	std::cout << "Put the element here(by row):\n";
-	std::cout
-		<< "Put all value in the same row in same line and divide them by "
-		   "<space> and press <Enter> after finished a row."
-		<< std::endl;
+	std::cout << "Put all value in the same row in same line and divide them by "
+		     "<space> and press <Enter> after finished a row."
+		  << std::endl;
 	for (int i = 0; i < row; i++) {
 		fillVector(M[i]);
 	}
@@ -265,25 +263,20 @@ template <typename T> matrix<T> readMatrixFromIstream()
 	return M;
 }
 
-template <typename T>
-void removeByValue(vector<T> &V, const vector<T> &blacklist)
+template <typename T> void removeByValue(vector<T> &V, const vector<T> &blacklist)
 {
-	auto new_end =
-		std::remove_if(V.begin(), V.end(), [&blacklist](const T &x) {
-			return std::find(blacklist.begin(), blacklist.end(),
-					 x) != blacklist.end();
-		});
+	auto new_end = std::remove_if(V.begin(), V.end(), [&blacklist](const T &x) {
+		return std::find(blacklist.begin(), blacklist.end(), x) != blacklist.end();
+	});
 	V.size = new_end - V.begin();
 }
 
-template <typename T>
-void removeByIndex(vector<T> &V, const vector<int> &indexList)
+template <typename T> void removeByIndex(vector<T> &V, const vector<int> &indexList)
 {
 	int writePos = 0; //要被覆蓋掉的值的指標(最後會是size)
 	for (int readPos = 0; readPos < V.size; readPos++) {
 		bool isInBlackList =
-			(std::find(indexList.begin(), indexList.end(),
-				   readPos) != indexList.end());
+			(std::find(indexList.begin(), indexList.end(), readPos) != indexList.end());
 		//現在這個index有沒有在blacklist裡面
 		if (!isInBlackList) {
 			V.data[writePos] = V.data[readPos];
@@ -294,26 +287,18 @@ void removeByIndex(vector<T> &V, const vector<int> &indexList)
 	V.size = writePos;
 }
 
-template <typename T> void resortMatrix(xdd::matrix<T> &M, xdd::matrix<int> &P)
+// P[i] = j 代表目前在 b[i] 的數值，原本應該在 x[j] 的位置
+template <typename T> vector<T> resortVector(const vector<T> &V, const xdd::vector<int> &P)
 {
-	int max_change_times = P.size;
-	int nowRow = 0;
-	int targetRow = 0;
-	for (int i = 0; i < max_change_times; i++) {
-		if (P[i][i] == 1) {
-			continue;
-		}
-		nowRow = i;
-		for (int j = 0; j < max_change_times; j++) {
-			if (P[i][j] == 1) {
-				targetRow = j;
-				std::swap(M[nowRow], M[targetRow]);
-				std::swap(P[nowRow], P[targetRow]);
-				break;
-			}
-		}
+	int row = V.size;
+	xdd::vector<T> x(row, NAN);
+
+	for (int i = 0; i < row; i++) {
+		x[P[i]] = V[i];
 	}
+	return x;
 }
+
 }
 
 #endif
