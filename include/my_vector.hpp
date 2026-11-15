@@ -288,15 +288,16 @@ template <typename T> void removeByIndex(vector<T> &V, const vector<int> &indexL
 }
 
 // P[i] = j 代表目前在 b[i] 的數值，原本應該在 x[j] 的位置
-template <typename T> vector<T> resortVector(const vector<T> &V, const xdd::vector<int> &P)
+template <typename T> void resortVector(vector<T> &V, xdd::vector<int> P)
 {
 	int row = V.size;
-	xdd::vector<T> x(row, NAN);
 
 	for (int i = 0; i < row; i++) {
-		x[P[i]] = V[i];
+		while (i != P[i]) {
+			std::swap(V[i], V[P[i]]);
+			std::swap(P[i], P[P[i]]);
+		}
 	}
-	return x;
 }
 
 }
