@@ -13,17 +13,14 @@ xdd::vector<int> GE(xdd::matrix<double> &A)
 	col = A[0].size;
 	xdd::vector<int> freeCol;
 	int freeColCount = 0;
-	int GE_level;
-	if (row > col) {
-		GE_level = row;
-	} else {
-		GE_level = col;
-	}
 
-	for (int i = 0; i < GE_level; i++) {
+	for (int i = 0; i < col; i++) {
 		//每一個col都從 [當前row-已經有的free col數] 開始找
 		int currentRow = i - freeColCount;
-		if (currentRow > row) {
+		if (currentRow > row || currentRow == row) {
+			freeCol.push_back(
+				i); // 已經沒有 row 可以提供 pivot 了，剩下的 column 必定是 free column
+			freeColCount++;
 			break;
 		}
 		double pivot = A[currentRow][i];
@@ -35,9 +32,10 @@ xdd::vector<int> GE(xdd::matrix<double> &A)
 			pivot = A[count][i];
 		}
 
-		if (pivot == 0) {
+		if (std::fabs(pivot) < 1e-9) {
 			//cout << "column " << i << " is free column, pass."
 			//<< endl;
+			A[count][i] = 0;
 			freeCol.push_back(i);
 			freeColCount++;
 			continue;
@@ -52,8 +50,7 @@ xdd::vector<int> GE(xdd::matrix<double> &A)
 			//CR分解最後的rref會是上三角矩陣所以row change不需要記錄下來
 		}
 
-		for (int j = currentRow + 1 /*當前的row不用作消去*/; j < row;
-		     j++) {
+		for (int j = currentRow + 1 /*當前的row不用作消去*/; j < row; j++) {
 			double elim = A[j][i];
 			// 這一個row的所有元素都會用到這個元素，但這個元素在地一個迴圈就會被消去，所以要額外寫一個變數保留他
 			// 即row_j -= row_pivot * {row_j第一個非0元素}/pivot
@@ -61,8 +58,7 @@ xdd::vector<int> GE(xdd::matrix<double> &A)
 			if (elim == 0) {
 				continue;
 			}
-			for (int k = i +
-				     1 /*因為A[j][i]最後一定會變成0,所以直接從下一個開始*/
+			for (int k = i + 1 /*因為A[j][i]最後一定會變成0,所以直接從下一個開始*/
 			     ;
 			     k < col; k++) {
 				// 當pivot那一row對應col的元素*倍率
@@ -109,8 +105,7 @@ xdd::vector<int> backGE(xdd::matrix<double> &A, xdd::vector<int> &freeCol)
 
 		//因為GE已經確保他是上三角矩陣了所以不需要row change
 
-		for (int j = currentRow - 1 /*當前的row不用作消去*/; j > (-1);
-		     j--) {
+		for (int j = currentRow - 1 /*當前的row不用作消去*/; j > (-1); j--) {
 			double elim = A[j][currentCol];
 			if (elim == 0) {
 				continue;
@@ -143,16 +138,27 @@ void rref(xdd::matrix<double> &A)
 	bool isZeroRow = true;
 	xdd::vector<int> zeroRow;
 	for (int i = 0; i < row; i++) {
+		isZeroRow = true;
 		for (int j = 0; j < col; j++) {
-			if (A[i][j] != 0) {
+			if (std::fabs(A[i][j]) > 1e-9) {
 				isZeroRow = false;
+				double pivot = A[i][j];
+				A[i][j] = 1.0;
+				for (int k = j + 1; k < col; k++) {
+					if (std::fabs(A[i][k]) < 1e-9) {
+						A[i][k] = 0;
+					} else {
+						A[i][k] /= pivot;
+					}
+				}
 				break;
+			} else {
+				A[i][j] = 0;
 			}
 		}
 		if (isZeroRow) {
 			zeroRow.push_back(i);
 		}
-		isZeroRow = true;
 	}
 	xdd::removeByIndex(A, zeroRow);
 }
@@ -170,8 +176,7 @@ xdd::matrix<double> getC(xdd::matrix<double> &A, xdd::vector<int> &pivotCol)
 	return C;
 }
 
-pair<xdd::matrix<double>, xdd::matrix<double> >
-CR_decompose(xdd::matrix<double> &A)
+pair<xdd::matrix<double>, xdd::matrix<double> > CR_decompose(xdd::matrix<double> &A)
 {
 	xdd::matrix<double> Acopy = A;
 	xdd::vector<int> freeCol, pivotCol;
@@ -186,7 +191,7 @@ CR_decompose(xdd::matrix<double> &A)
 	return pair<xdd::matrix<double>, xdd::matrix<double> >(C, Acopy);
 }
 
-#ifdef CR_DECOMPSE
+#ifdef CR_DECOMPOSE
 int main()
 {
 	cout << "----CR decompose----" << endl;
