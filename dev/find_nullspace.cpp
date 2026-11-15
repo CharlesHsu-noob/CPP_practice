@@ -5,13 +5,11 @@
 using namespace std;
 
 //include from CR_decompose.cpp
-pair<xdd::matrix<double>, xdd::matrix<double> >
-CR_decompose(xdd::matrix<double> &A);
+pair<xdd::matrix<double>, xdd::matrix<double> > CR_decompose(xdd::matrix<double> &A);
 //end include
 
 //include from solLinearSys.cpp
-xdd::vector<double> solLinearSys(xdd::matrix<double> &A,
-				 xdd::vector<double> &b);
+xdd::vector<double> solLinearSys(xdd::matrix<double> &A, xdd::vector<double> &b);
 //end include
 
 xdd::vector<int> getPivotCol(const xdd::matrix<double> &M)
@@ -57,7 +55,9 @@ xdd::vector<int> colChange(xdd::matrix<double> &M, xdd::vector<int> pivotCol)
 
 	for (int i = 0; i < pivotCol.size; i++) {
 		if (pivotCol[i] != i) {
-			swap(M[pivotCol[i]], M[i]);
+			for (int j = 0; j < M.size; j++) {
+				swap(M[j][i], M[j][pivotCol[i]]);
+			}
 			swap(P[pivotCol[i]], P[i]);
 		}
 	}
@@ -69,22 +69,21 @@ xdd::vector<xdd::vector<double> > nullspace(xdd::matrix<double> &A)
 	std::tie(C, R) = CR_decompose(A);
 	xdd::vector<int> pivotCol = getPivotCol(R);
 	xdd::vector<int> P = colChange(R, pivotCol);
+
 	//x_n.size=freeCol.size=R[0].size-pivotCol.size
 	//here x_n is wrong sort, need resort later
-	xdd::matrix<double> x_n(R[0].size - pivotCol.size,
-				xdd::vector<double>(R[0].size, 0));
+	xdd::matrix<double> x_n(R[0].size - pivotCol.size, xdd::vector<double>(R[0].size, 0));
 	xdd::vector<double> b(pivotCol.size + 1, 0);
 	b[pivotCol.size] = 1;
 	for (int i = 0; i < x_n.size; i++) {
 		//可以優化(using M.block or M.view)
-		xdd::matrix<double> temp_A(b.size,
-					   xdd::vector<double>(b.size, 0));
+		xdd::matrix<double> temp_A(b.size, xdd::vector<double>(b.size, 0));
 		for (int j = 0; j < temp_A.size - 1; j++) {
 			for (int k = j; k < temp_A.size - 1; k++) {
 				temp_A[j][k] = R[j][k];
 			}
 			//b.size-1=pivotCol.size
-			temp_A[j][pivotCol.size] = R[j][pivotCol.size];
+			temp_A[j][pivotCol.size] = R[j][pivotCol.size + i];
 		}
 
 		//b.size-1=pivotCol.size
@@ -107,6 +106,7 @@ xdd::vector<xdd::vector<double> > nullspace(xdd::matrix<double> &A)
 		for (int j = 0; j < x_n.size; j++) {
 			swap(x_n[j][i], x_n[j][P[i]]);
 		}
+		swap(P[i], P[P[i]]);
 	}
 
 	return x_n;
@@ -116,18 +116,15 @@ int main()
 {
 	cout << "----Find nullspace----" << endl;
 	xdd::matrix<double> A = xdd::readMatrixFromIstream<double>();
-	/*
-	xdd::matrix<double> C, R;
-	std::tie(C, R) = CR_decompose(A);
-	xdd::vector<int> pivotCol = getPivotCol(R);
-
-	xdd::printVector(pivotCol);
-	return 0;*/
 
 	xdd::matrix<double> nullspace_basis = nullspace(A);
 
 	cout << "Basis of null space of A:" << endl;
 
+	if (nullspace_basis.size == 0) {
+		cout << "{0}" << endl;
+		return 0;
+	}
 	for (int i = 0; i < nullspace_basis.size; i++) {
 		xdd::printVector(nullspace_basis[i]);
 		cout << "\n" << endl;
