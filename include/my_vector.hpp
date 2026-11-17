@@ -194,6 +194,71 @@ template <typename T> struct vector {
 
 template <typename T> using matrix = vector<vector<T> >;
 
+//matrix*matrix
+template <typename T> matrix<T> matrixMulti(const matrix<T> &A, const matrix<T> &B)
+{
+	int colA = A[0].size;
+	int rowB = B.size;
+	if (colA == 0 || rowB == 0 || colA != rowB) {
+		std::cout << "Column A=" << colA << ", row B=" << rowB << std::endl;
+		throw std::invalid_argument("matMul: Matrix dimensions do not match.");
+	}
+	int rowA = A.size;
+	int colB = B[0].size;
+	matrix<T> result(rowA, vector<T>(colB, NAN));
+	for (int i = 0; i < rowA; i++) {
+		for (int k = 0; k < colA; k++) {
+			T r = A[i][k];
+			for (int j = 0; j < colB; j++) {
+				result[i][j] = r * B[k][j];
+			}
+		}
+	}
+	return result;
+}
+//matrix*vector=vector
+template <typename T> vector<T> matrixMulti(const matrix<T> &M, const vector<T> &V)
+{
+	int colM = M[0].size;
+	int lenV = V.size;
+	if (colM == 0 || lenV == 0 || colM != lenV) {
+		std::cout << "Column M=" << colM << ", len V=" << lenV << std::endl;
+		throw std::invalid_argument("matMul: Matrix dimensions do not match.");
+	}
+	int rowM = M.size;
+	vector<T> result(rowM, NAN);
+	for (int i = 0; i < rowM; i++) {
+		T temp = T();
+		for (int j = 0; j < colM; j++) {
+			temp += M[i][j] * V[j];
+		}
+		result[i] = temp;
+	}
+	return result;
+}
+//vector*matrix=vector
+template <typename T> vector<T> matrixMulti(const vector<T> &V, const matrix<T> &M)
+{
+	int rowM = M.size;
+	int colM = (rowM > 0) ? M[0].size : 0;
+	int lenV = V.size;
+
+	if (rowM == 0 || colM == 0 || lenV == 0 || lenV != rowM) {
+		std::cout << "len V=" << lenV << ", Row M=" << rowM << std::endl;
+		throw std::invalid_argument("matMul: Vector*Matrix dimensions do not match.");
+	}
+
+	vector<T> result(colM, T());
+
+	for (int i = 0; i < rowM; i++) {
+		T v_i = V[i];
+		for (int j = 0; j < colM; j++) {
+			result[j] += v_i * M[i][j];
+		}
+	}
+	return result;
+}
+
 template <typename T> void printVector(const vector<T> &V)
 {
 	int digits = 4;
@@ -208,7 +273,6 @@ template <typename T> void printVector(const vector<T> &V)
 				  << V[i];
 		}
 	}
-	std::cout << std::endl;
 }
 
 template <typename T> void printMatrix(const matrix<T> &M)
@@ -216,6 +280,7 @@ template <typename T> void printMatrix(const matrix<T> &M)
 	int row = M.size;
 	for (int i = 0; i < row; i++) {
 		printVector(M[i]);
+		std::cout << std::endl;
 	}
 }
 

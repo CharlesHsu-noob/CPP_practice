@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "my_vector.hpp"
 
 using namespace std;
@@ -9,6 +10,7 @@ pair<xdd::matrix<double>, xdd::matrix<double> > CR_decompose(xdd::matrix<double>
 
 xdd::vector<int> getPivotCol(const xdd::matrix<double> &M)
 {
+	double tolerance = 1e-9;
 	//require M is in R_0 type
 	int row = M.size;
 	int col = M[0].size;
@@ -16,7 +18,7 @@ xdd::vector<int> getPivotCol(const xdd::matrix<double> &M)
 
 	for (int i = 0; i < row; i++) {
 		for (int j = i; j < col; j++) {
-			if (std::fabs(M[i][j]) > 1e-9) {
+			if (std::fabs(M[i][j]) > tolerance) {
 				pivotCol.push_back(j);
 				break;
 			}
@@ -62,6 +64,17 @@ xdd::vector<int> colChange(xdd::matrix<double> &M, xdd::vector<int> pivotCol)
 xdd::vector<xdd::vector<double> > nullspace(xdd::matrix<double> &A)
 {
 	xdd::matrix<double> R = CR_decompose(A).second;
+
+	//處理零矩陣
+	if (R.size == 0) {
+		int col = A[0].size;
+		xdd::vector<xdd::vector<double> > basis(col, xdd::vector<double>(col, 0));
+		for (int i = 0; i < col; i++) {
+			basis[i][i] = 1.0;
+		}
+		return basis;
+	}
+
 	//std::tie(C, R) = CR_decompose(A);
 	//C因為不會用到所以可以直接不接收
 	xdd::vector<int> pivotCol = getPivotCol(R);
@@ -133,8 +146,9 @@ int main()
 		return 0;
 	}
 	for (int i = 0; i < nullspace_basis.size; i++) {
+		cout << "[";
 		xdd::printVector(nullspace_basis[i]);
-		cout << "\n" << endl;
+		cout << "]" << endl;
 	}
 
 	return 0;

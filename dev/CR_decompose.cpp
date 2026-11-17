@@ -1,5 +1,6 @@
 #include <iostream>
 #include <tuple>
+#include <cmath>
 #include "my_vector.hpp"
 
 using namespace std;
@@ -7,6 +8,7 @@ using namespace std;
 //return free column's posision
 xdd::vector<int> GE(xdd::matrix<double> &A)
 {
+	double tolerance = 1e-9;
 	/*CR分解不需要row change*/
 	int row, col;
 	row = A.size;
@@ -21,18 +23,18 @@ xdd::vector<int> GE(xdd::matrix<double> &A)
 			freeCol.push_back(
 				i); // 已經沒有 row 可以提供 pivot 了，剩下的 column 必定是 free column
 			freeColCount++;
-			break;
+			continue;
 		}
 		double pivot = A[currentRow][i];
 		//cout << "pivot=A[" << currentRow << "][" << i << "]" << endl;
 		int count = currentRow;
-		while (std::fabs(pivot) < 1e-9 && (count + 1) < row) {
+		while (std::fabs(pivot) < tolerance && (count + 1) < row) {
 			A[count][i] = 0;
 			count++;
 			pivot = A[count][i];
 		}
 
-		if (std::fabs(pivot) < 1e-9) {
+		if (std::fabs(pivot) < tolerance) {
 			//cout << "column " << i << " is free column, pass."
 			//<< endl;
 			A[count][i] = 0;
@@ -54,10 +56,11 @@ xdd::vector<int> GE(xdd::matrix<double> &A)
 			double elim = A[j][i];
 			// 這一個row的所有元素都會用到這個元素，但這個元素在地一個迴圈就會被消去，所以要額外寫一個變數保留他
 			// 即row_j -= row_pivot * {row_j第一個非0元素}/pivot
-			double multiplier = elim / pivot;
-			if (elim == 0) {
+			if (std::fabs(elim) < tolerance) {
+				A[j][i] = 0.0;
 				continue;
 			}
+			double multiplier = elim / pivot;
 			for (int k = i + 1 /*因為A[j][i]最後一定會變成0,所以直接從下一個開始*/
 			     ;
 			     k < col; k++) {
@@ -75,6 +78,7 @@ xdd::vector<int> GE(xdd::matrix<double> &A)
 //return pivot column
 xdd::vector<int> backGE(xdd::matrix<double> &A, xdd::vector<int> &freeCol)
 {
+	double tolerance = 1e-9;
 	/*CR分解不需要row change*/
 	int row, col;
 	row = A.size;
@@ -94,7 +98,7 @@ xdd::vector<int> backGE(xdd::matrix<double> &A, xdd::vector<int> &freeCol)
 		int currentCol = pivotCol[i];
 		double pivot = A[currentRow][currentCol];
 		int count = currentRow;
-		while (std::fabs(pivot) < 1e-9 && (count - 1) > (-1)) {
+		while (std::fabs(pivot) < tolerance && (count - 1) > (-1)) {
 			A[count][currentCol] = 0;
 			count--;
 			pivot = A[count][currentCol];
@@ -133,6 +137,7 @@ xdd::vector<int> backGE(xdd::matrix<double> &A, xdd::vector<int> &freeCol)
 //return C ,R use A's memory space
 void rref(xdd::matrix<double> &A)
 {
+	double tolerance = 1e-9;
 	int row = A.size;
 	int col = A[0].size;
 	bool isZeroRow = true;
@@ -140,12 +145,12 @@ void rref(xdd::matrix<double> &A)
 	for (int i = 0; i < row; i++) {
 		isZeroRow = true;
 		for (int j = 0; j < col; j++) {
-			if (std::fabs(A[i][j]) > 1e-9) {
+			if (std::fabs(A[i][j]) > tolerance) {
 				isZeroRow = false;
 				double pivot = A[i][j];
 				A[i][j] = 1.0;
 				for (int k = j + 1; k < col; k++) {
-					if (std::fabs(A[i][k]) < 1e-9) {
+					if (std::fabs(A[i][k]) < tolerance) {
 						A[i][k] = 0;
 					} else {
 						A[i][k] /= pivot;

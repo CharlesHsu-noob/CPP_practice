@@ -1,34 +1,72 @@
 #include <iostream>
-// 假設你的檔案叫做 my_complex.h。如果在 include 資料夾內，請改成 "include/my_complex.h"
-#include "my_complex.h"
+#include <stdexcept>
+#include "my_vector.hpp"
 
 using namespace std;
-using namespace xdd; // 引用你自訂的命名空間
+using namespace xdd;
+
+// 輔助函式：將靜態陣列轉為 xdd::matrix
+xdd::matrix<double> makeMatrix(int row, int col, const double *raw)
+{
+	xdd::matrix<double> M(row, xdd::vector<double>(col, 0));
+	for (int i = 0; i < row; i++) {
+		for (int j = 0; j < col; j++) {
+			M[i][j] = raw[i * col + j];
+		}
+	}
+	return M;
+}
+
+// 輔助函式：將靜態陣列轉為 xdd::vector
+xdd::vector<double> makeVector(int len, const double *raw)
+{
+	xdd::vector<double> V(len, 0);
+	for (int i = 0; i < len; i++) {
+		V[i] = raw[i];
+	}
+	return V;
+}
 
 int main()
 {
-	// 測試建構子
-	complex<double> c1(1.5, 2.0);
-	complex<double> c2(3.0, -1.0);
+	cout << "==== Test 1: 2x3 Matrix * 3x1 Vector (Expected: 2x1 Vector) ====" << endl;
+	double rawM1[] = { 1, 2, 3, 4, 5, 6 };
+	double rawV1[] = { 10, 20, 30 };
 
-	// 測試輸出運算子 (<<)
-	cout << "c1 = " << c1 << "\n";
-	cout << "c2 = " << c2 << "\n";
+	xdd::matrix<double> M1 = makeMatrix(2, 3, rawM1);
+	xdd::vector<double> V1 = makeVector(3, rawV1);
 
-	// 測試加法與乘法
-	cout << "c1 + c2 = " << (c1 + c2) << "\n";
-	cout << "c1 * c2 = " << (c1 * c2) << "\n";
+	cout << "M1 (2x3):" << endl;
+	xdd::printMatrix(M1);
+	cout << "V1 (3x1):" << endl;
+	xdd::printVector(V1);
 
-	// 測試絕對值函式
-	cout << "abs(c1) = " << c1.abs() << "\n";
+	xdd::vector<double> res1 = matrixMulti(M1, V1);
+	cout << "Result M1 * V1 (Expected: [140, 320]):" << endl;
+	xdd::printVector(res1);
+	cout << endl;
 
-	// 測試輸入運算子 (>>)
-	complex<double> c3;
-	cout << "請輸入一個複數 (格式如 (1,2) 或 3): ";
-	if (cin >> c3) {
-		cout << "你輸入的是: " << c3 << "\n";
-	} else {
-		cout << "輸入格式錯誤！\n";
+	cout << "==== Test 2: Verify Null Space Basis (A * x_n = 0) ====" << endl;
+	double rawA[] = { 2, 4, 2, 0, 4, 4, 0, 8, 8 };
+	// 先前算出的 R = [1, 0, -1; 0, 1, 1]，對應的 nullspace 基底為 [1, -1, 1]
+	double rawXn[] = { 1, -1, 1 };
+
+	xdd::matrix<double> A = makeMatrix(3, 3, rawA);
+	xdd::vector<double> x_n = makeVector(3, rawXn);
+
+	xdd::vector<double> res2 = matrixMulti(A, x_n);
+	cout << "Result A * x_n (Expected: [0, 0, 0]):" << endl;
+	xdd::printVector(res2);
+	cout << endl;
+
+	cout << "==== Test 3: Dimension Mismatch Exception (2x3 * 2x1) ====" << endl;
+	double rawV_bad[] = { 1, 2 };
+	xdd::vector<double> V_bad = makeVector(2, rawV_bad);
+
+	try {
+		xdd::vector<double> res_err = matrixMulti(M1, V_bad);
+	} catch (const std::invalid_argument &e) {
+		cout << "Successfully caught exception: " << e.what() << endl;
 	}
 
 	return 0;
